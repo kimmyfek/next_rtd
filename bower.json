@@ -1,0 +1,22 @@
+{
+  "name": "next_rtd",
+  "authors": [
+    "Jarmo <nurse.jason@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react-bootstrap": "^0.31.0",
+    "react": "^15.5.4"
+  }
+}
