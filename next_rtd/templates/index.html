@@ -9,30 +9,12 @@
   </head>
   <body>
     <div class="container">
-      <h1>Next RTD</h1>
-      <br>
       <div id="main"></div>
     </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.5.4/react.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.5.4/react-dom.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
-  <script type="text/jsx">
-    /*** @jsx React.DOM */
-
-    var realPython = React.createClass({
-      render: function() {
-        return (<h2>Greetings, from Real Python!</h2>);
-      }
-    });
-
-    ReactDOM.render(
-      React.createElement(realPython, null),
-      document.getElementById('main')
-    );
-  </script>
-
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+  <script src="{{ url_for('static', filename='scripts/js/scripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/js/app.js') }}"></script>
 
   </body>
 </html>
