@@ -38,6 +38,13 @@ var Station = React.createClass({
       this.setState({direction: "Northbound"});
     },
 
+    componentWillReceiveProps(nextProps){
+      if(nextProps.reset){
+          this.setState(this.getInitialState());
+      }
+      this.forceUpdate();
+    },
+
     shouldComponentUpdate: function(nextProps, nextState){
       if(this.state.times == ""){
         return true;
@@ -48,7 +55,6 @@ var Station = React.createClass({
 
  	render: function() {
 		var me = this;
-
         if(me.state.to != "" && me.state.from != ""){
             // we have our to & from  stations,
             // lets call the backend for the times

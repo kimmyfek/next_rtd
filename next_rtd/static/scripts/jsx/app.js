@@ -17,13 +17,21 @@ var App = React.createClass({
 		return {
           to: "",
           from: "",
-          stations: stations
+          stations: stations,
+          reset: false
         };
 	},
 
     startOver: function(me){
-      console.log("reset");
-      me.forceUpdate();
+      me.setState(this.getInitialState());
+      //this.setState({reset:true}, () => {
+      //  this.forceUpdate();
+      //  });
+      this.setState({reset:true});
+    },
+
+    componentDidMount: function(){
+      this.setState({reset:false});
     },
 
 	render: function(){
@@ -44,7 +52,7 @@ var App = React.createClass({
 			  </Col>
 			  <Col md={4}>
 			  <div id="from_stations">
-				  <Station stations={this.state.stations} />
+				  <Station stations={this.state.stations} reset={this.state.reset} />
 			  </div>
 			  </Col>
 			  <Col md={4}>
