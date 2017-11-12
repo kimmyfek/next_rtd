@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"encoding/csv"
@@ -6,30 +6,27 @@ import (
 	"io"
 	"os"
 
-	"github.com/nursejason/next-rtd/database"
-	m "github.com/nursejason/next-rtd/models"
+	"github.com/kimmyfek/next_rtd/database"
+	m "github.com/kimmyfek/next_rtd/models"
 	set "gopkg.in/fatih/set.v0"
 )
 
+// ParseData parses the data files and saves them to the data store.
 // TODO Merge union stations together
 // TODO stops with only a couple options? look at that data
-func main() {
+func ParseData(db *database.AccessLayer) {
 	// TODO Flags to point to file location or something
 
+	fileDir := "/Users/jjob200/Downloads/google_transit"
 	// TODO open each file individually
 	routes := parseRoutes()
 	trips := parseTrips(routes)
 	stopTimes, stopIDs := parseStopTimes(trips) // TODO could switch back to stopid for key
 	stops := parseStops(stopIDs)
-
-	db := database.NewAccessLayer("/opt/next-rtd/next-rtd.db")
-	err := db.Open()
-	if err != nil {
-		panic(fmt.Sprintf("Unable to create and open database: %s", err))
-	}
+	calData := parseCalendar(fileDir, "calendar.txt")
 
 	// TODO fix the funcs
-	err = db.SaveRoutes("routes", routes) // Replace with replacedata
+	err := db.SaveRoutes("routes", routes) // Replace with replacedata
 	if err != nil {
 		panic(fmt.Sprintf("Unable to save routes to db: %s", err))
 	}
@@ -45,6 +42,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Unable to save stop_times to db: %s", err))
 	}
+	err = db.SaveCalendarData("calendar", calData)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to save calendar to db: %s", err))
+	}
+
 }
 
 func parseRoutes() map[string]m.Route {
@@ -204,4 +206,38 @@ func parseStops(stopIDs *set.Set) map[string]m.Stop {
 		}
 	}
 	return stops
+}
+
+func parseCalendar(path, filename string) (cal []m.Calendar) {
+	f, err := os.Open(fmt.Sprintf("%s/%s", path, filename))
+	if err != nil {
+		panic(fmt.Sprintf("Unable to open %s/%s", path, filename))
+	}
+	defer f.Close()
+
+	r := csv.NewReader(f)
+
+	for {
+		if day, err := r.Read(); err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				panic(fmt.Sprintf("Unable to parse calendar: %s", err))
+			}
+		} else {
+			cal = append(cal, m.Calendar{
+				ServiceID: day[0],
+				Monday:    day[1],
+				Tuesday:   day[2],
+				Wednesday: day[3],
+				Thursday:  day[4],
+				Friday:    day[5],
+				Saturday:  day[6],
+				Sunday:    day[7],
+				StartDate: day[8],
+				EndDate:   day[9],
+			})
+		}
+	}
+	return cal
 }

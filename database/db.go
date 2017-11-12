@@ -8,8 +8,8 @@ import (
 
 	"gopkg.in/fatih/set.v0"
 
+	m "github.com/kimmyfek/next_rtd/models"
 	_ "github.com/mattn/go-sqlite3" // SQL doesn't need a name
-	m "github.com/nursejason/next-rtd/models"
 )
 
 const (
@@ -18,6 +18,7 @@ const (
 	stopsTable     string = "stops"
 	stopTimesTable string = "stop_times"
 	tripsTable     string = "trips"
+	calendarTable  string = "calendar"
 )
 
 // AccessLayer is the object meant to be used to access the DB
@@ -56,6 +57,7 @@ func (al *AccessLayer) Open() error {
 			fmt.Printf("Error creating %s table", routesTable)
 			return err
 		}
+		fmt.Println("Created routes table")
 
 	}
 
@@ -73,6 +75,7 @@ func (al *AccessLayer) Open() error {
 			fmt.Printf("Error creating %s table", stopsTable)
 			return err
 		}
+		fmt.Println("Created stops table")
 	}
 	if !al.tableExists(stopTimesTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -88,6 +91,7 @@ func (al *AccessLayer) Open() error {
 			fmt.Printf("Error creating %s table", stopTimesTable)
 			return err
 		}
+		fmt.Println("Created stop times table")
 	}
 	if !al.tableExists(tripsTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -103,6 +107,29 @@ func (al *AccessLayer) Open() error {
 			fmt.Printf("Error creating %s table", tripsTable)
 			return err
 		}
+		fmt.Println("Created trips table")
+	}
+	if !al.tableExists(calendarTable) {
+		_, err := al.AL.Exec(fmt.Sprintf(`
+            CREATE TABLE %s(
+                service_id STRING NOT NULL,
+                monday     STRING NOT NULL,
+                tuesday    STRING NOT NULL,
+                wednesday  STRING NOT NULL,
+                thursday   STRING NOT NULL,
+                friday     STRING NOT NULL,
+                saturday   STRING NOT NULL,
+                sunday     STRING NOT NULL,
+                start_date STRING NOT NULL,
+                end_date   STRING NOT NULL
+            )
+        `, calendarTable))
+
+		if err != nil {
+			fmt.Printf("Error creating %s table", calendarTable)
+			return err
+		}
+		fmt.Println("Created calendar table")
 	}
 	return nil
 }
@@ -264,6 +291,46 @@ func (al *AccessLayer) SaveStopTimes(table string, data map[string][]m.StopTime)
 			))
 			numProvided++
 		}
+	}
+
+	rowsAffected, err := al.exec(stmt, values)
+	if err != nil {
+		return err
+	}
+	if rowsAffected != numProvided {
+		return fmt.Errorf("%d rows inserted, yet %d records provided",
+			rowsAffected,
+			numProvided)
+	}
+	return nil
+}
+
+// SaveCalendarData stores Calendar m to the DB for each entry in the provided list
+func (al *AccessLayer) SaveCalendarData(table string, data []m.Calendar) error {
+	if len(data) == 0 {
+		return fmt.Errorf("Unable to calendar data, empty list provided")
+	}
+	stmt := `INSERT INTO calendar(
+		service_id, monday, tuesday, wednesday, thursday, friday,
+		saturday, sunday, start_date, end_date) VALUES `
+	values := []string{}
+
+	var numProvided int64
+	for _, day := range data {
+		values = append(values, fmt.Sprintf(
+			"('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+			day.ServiceID,
+			day.Monday,
+			day.Tuesday,
+			day.Wednesday,
+			day.Thursday,
+			day.Friday,
+			day.Saturday,
+			day.Sunday,
+			day.StartDate,
+			day.EndDate,
+		))
+		numProvided++
 	}
 
 	rowsAffected, err := al.exec(stmt, values)

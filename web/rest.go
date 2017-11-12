@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/nursejason/next-rtd/database"
+	"github.com/kimmyfek/next_rtd/database"
 )
 
 func main() {

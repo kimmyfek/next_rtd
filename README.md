@@ -2,10 +2,12 @@
 - [ ] get times based on now
 - [ ] Only get next times for today
 - [ ] Figure out how to grab tomorrow if rollover
-- [ ] Add flags to startup
-  - [ ] Specify DB path
-  - [ ] Whether to reload DB
+- [X] Add flags to startup
+  - [X] Specify DB path
+  - [X] Whether to reload DB
 - [ ] Have the UI get served from the back-end
+- [ ] DB data replace
+- [ ] Logging > printlns
 
 # TODO
 ## Parsing
@@ -16,7 +18,6 @@
 - [X] Save the data to the DB
 - [X] Create queries for saving to DB
 - [X] Create generic function for saving to DB
-- [ ] DB data replation
 
 ## Retrieving Data
 - [X] Create an API to serve the data

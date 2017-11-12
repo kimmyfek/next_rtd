@@ -66,3 +66,17 @@ type Time struct {
 	ArrivalFrom string `json:"arrival_from"`
 	Route       string `json:"route"`
 }
+
+// Calendar represents day structure
+type Calendar struct {
+	ServiceID string
+	Monday    string
+	Tuesday   string
+	Wednesday string
+	Thursday  string
+	Friday    string
+	Saturday  string
+	Sunday    string
+	StartDate string
+	EndDate   string
+}
