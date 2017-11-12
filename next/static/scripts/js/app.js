@@ -25,7 +25,6 @@ var Station = React.createClass({displayName: "Station",
 	getConnectingStations: function(station){
         if(this.state.isDestination == false){
           this.setState({stations: station.connections});
-          this.props.stations = station.connections;
           this.setState({isDestination: true});
           this.setState({from: station.name});
           this.setState({pageText: "Arriving Station"});
@@ -40,6 +39,13 @@ var Station = React.createClass({displayName: "Station",
       this.setState({direction: "Northbound"});
     },
 
+    componentWillReceiveProps(nextProps){
+      if(nextProps.reset){
+          this.setState(this.getInitialState());
+      }
+      this.forceUpdate();
+    },
+
     shouldComponentUpdate: function(nextProps, nextState){
       if(this.state.times == ""){
         return true;
@@ -50,7 +56,6 @@ var Station = React.createClass({displayName: "Station",
 
  	render: function() {
 		var me = this;
-
         if(me.state.to != "" && me.state.from != ""){
             // we have our to & from  stations,
             // lets call the backend for the times
@@ -169,13 +174,21 @@ var App = React.createClass({displayName: "App",
 		return {
           to: "",
           from: "",
-          stations: stations
+          stations: stations,
+          reset: false
         };
 	},
 
     startOver: function(me){
-      console.log("reset");
-      me.forceUpdate();
+      me.setState(this.getInitialState());
+      //this.setState({reset:true}, () => {
+      //  this.forceUpdate();
+      //  });
+      this.setState({reset:true});
+    },
+
+    componentDidMount: function(){
+      this.setState({reset:false});
     },
 
 	render: function(){
@@ -196,7 +209,7 @@ var App = React.createClass({displayName: "App",
 			  ), 
 			  React.createElement(Col, {md: 4}, 
 			  React.createElement("div", {id: "from_stations"}, 
-				  React.createElement(Station, {stations: this.state.stations})
+				  React.createElement(Station, {stations: this.state.stations, reset: this.state.reset})
 			  )
 			  ), 
 			  React.createElement(Col, {md: 4}
