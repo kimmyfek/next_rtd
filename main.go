@@ -10,7 +10,8 @@ import (
 )
 
 var parse = flag.Bool("parse", false, "If provided will parse data and add to DB. Default: Disabled")
-var dbPath = flag.String("dbPath", "/opt/next-rtd/next-rtd.db", "Path to sqlite DB file.")
+var dbDir = flag.String("dbDir", "/opt/next-rtd", "Path for Sqlite DB file.")
+var sourceDir = flag.String("sourceDir", "/Users/jjob200/Downloads/google_transit", "Dir where source RTD txt files are located")
 
 // TODO -- Flag for parse file path
 
@@ -18,8 +19,10 @@ func main() {
 	fmt.Println("Application Initialization Begin...")
 
 	flag.Parse()
-	fmt.Println(fmt.Sprintf("Accessing DB @ %s", *dbPath))
-	al := database.NewAccessLayer(*dbPath)
+
+	dbPath := fmt.Sprintf("%s/next-rtd.db", *dbDir)
+	fmt.Println(fmt.Sprintf("Accessing DB @ %s", dbPath))
+	al := database.NewAccessLayer(dbPath)
 	err := al.Open()
 	if err != nil {
 		panic(fmt.Sprintf("Unable to create and open database: %s", err))
@@ -30,7 +33,7 @@ func main() {
 		fmt.Println("---------- WARNING ----------")
 		fmt.Println("Be sure the DB is new and empty, else this will error or create dup data")
 		fmt.Println("---------- WARNING ----------")
-		parser.ParseData(al)
+		parser.ParseData(al, *sourceDir)
 	}
 
 	fmt.Println("Application Init complete. Running...")

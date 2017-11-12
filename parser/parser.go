@@ -14,16 +14,15 @@ import (
 // ParseData parses the data files and saves them to the data store.
 // TODO Merge union stations together
 // TODO stops with only a couple options? look at that data
-func ParseData(db *database.AccessLayer) {
+func ParseData(db *database.AccessLayer, fileDir string) {
 	// TODO Flags to point to file location or something
 
-	fileDir := "/Users/jjob200/Downloads/google_transit"
 	// TODO open each file individually
-	routes := parseRoutes()
-	trips := parseTrips(routes)
-	stopTimes, stopIDs := parseStopTimes(trips) // TODO could switch back to stopid for key
-	stops := parseStops(stopIDs)
-	calData := parseCalendar(fileDir, "calendar.txt")
+	routes := parseRoutes(fileDir, "routes")
+	trips := parseTrips(routes, fileDir, "trips")
+	stopTimes, stopIDs := parseStopTimes(trips, fileDir, "stop_times") // TODO could switch back to stopid for key
+	stops := parseStops(stopIDs, fileDir, "stops")
+	calData := parseCalendar(fileDir, "calendar")
 
 	// TODO fix the funcs
 	err := db.SaveRoutes("routes", routes) // Replace with replacedata
@@ -49,8 +48,9 @@ func ParseData(db *database.AccessLayer) {
 
 }
 
-func parseRoutes() map[string]m.Route {
-	f, err := os.Open("/Users/jjob200/Downloads/google_transit/routes.txt") // TODO
+func parseRoutes(path, filename string) map[string]m.Route {
+	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
+	f, err := os.Open(filePath)
 	if err != nil {
 		panic("Unable to open routes.txt")
 	}
@@ -97,8 +97,9 @@ func parseRoutes() map[string]m.Route {
 	return routes
 }
 
-func parseTrips(routes map[string]m.Route) map[string]m.Trip {
-	f, err := os.Open("/Users/jjob200/Downloads/google_transit/trips.txt") // TODO
+func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.Trip {
+	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
+	f, err := os.Open(filePath)
 	if err != nil {
 		panic("Unable to open trips.txt")
 	}
@@ -131,8 +132,9 @@ func parseTrips(routes map[string]m.Route) map[string]m.Trip {
 	return trips
 }
 
-func parseStopTimes(trips map[string]m.Trip) (map[string][]m.StopTime, *set.Set) {
-	f, err := os.Open("/Users/jjob200/Downloads/google_transit/stop_times.txt") // TODO
+func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string][]m.StopTime, *set.Set) {
+	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
+	f, err := os.Open(filePath)
 	if err != nil {
 		panic("Unable to open stop_times.txt")
 	}
@@ -169,8 +171,9 @@ func parseStopTimes(trips map[string]m.Trip) (map[string][]m.StopTime, *set.Set)
 	return stopTimes, stopIDs
 }
 
-func parseStops(stopIDs *set.Set) map[string]m.Stop {
-	f, err := os.Open("/Users/jjob200/Downloads/google_transit/stops.txt") // TODO
+func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
+	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
+	f, err := os.Open(filePath)
 	if err != nil {
 		panic("Unable to open stops.txt")
 	}
@@ -209,7 +212,8 @@ func parseStops(stopIDs *set.Set) map[string]m.Stop {
 }
 
 func parseCalendar(path, filename string) (cal []m.Calendar) {
-	f, err := os.Open(fmt.Sprintf("%s/%s", path, filename))
+	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
+	f, err := os.Open(filePath)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to open %s/%s", path, filename))
 	}

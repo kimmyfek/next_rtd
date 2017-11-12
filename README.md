@@ -1,3 +1,8 @@
+Instructions:
+```
+./next_rtd --parse=true --dbDir /opt/next-rtd --sourceDir /Users/jjob200/Downloads/google_transit
+```
+
 - [ ] Save calendar data
 - [ ] get times based on now
 - [ ] Only get next times for today
