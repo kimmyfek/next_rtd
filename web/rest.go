@@ -3,8 +3,11 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/kimmyfek/next_rtd/database"
 )
@@ -37,7 +40,22 @@ func (rh *RestHandler) Init() {
 
 // Index is sanity
 func (rh *RestHandler) Index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello"))
+	//w.Write([]byte("Hello"))
+	tmpl, err := template.New("ui").ParseFiles("next/templates/index.html")
+	if err != nil {
+		panic(err)
+	}
+	st, err := rh.DB.GetStationsAndConnections()
+	if err != nil {
+		w.Write([]byte(err.Error())) // TODO pass error to UI
+	} else {
+		j, err := json.Marshal(st)
+		if err != nil {
+			w.Write([]byte(err.Error())) // TODO Pass error to UI
+		} else {
+			tmpl.Execute(w, j)
+		}
+	}
 }
 
 // GetStations queries the DB for a list of all stations and then returns them
@@ -92,7 +110,8 @@ func (rh *RestHandler) GetTimes(w http.ResponseWriter, r *http.Request) {
 	// TODO FromTime
 	// TODO No from station
 	// TODO Days
-	times, err := rh.DB.GetTimesForStations(to, from, numTimes)
+	now := formatTime(time.Now())
+	times, err := rh.DB.GetTimesForStations(to, from, now, numTimes)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
@@ -103,4 +122,8 @@ func (rh *RestHandler) GetTimes(w http.ResponseWriter, r *http.Request) {
 			w.Write(j)
 		}
 	}
+}
+
+func formatTime(t time.Time) string {
+	return strings.Split(t.Format(time.Stamp), " ")[2]
 }

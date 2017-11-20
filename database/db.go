@@ -431,7 +431,7 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 }
 
 // GetTimesForStations returns a list of time slots between two train stations
-func (al *AccessLayer) GetTimesForStations(from, to string, numTimes int) ([]m.Time, error) {
+func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
 	query := `
 		SELECT DISTINCT
 			s.stop_name, -- from
@@ -466,9 +466,11 @@ func (al *AccessLayer) GetTimesForStations(from, to string, numTimes int) ([]m.T
 			s.stop_name = ?
 			AND s2.stop_name = ?
 			AND st.arrival_time < s2.arrival_time -- From time < To time
+			AND st.arrival_time > ?
+		ORDER BY st.arrival_time ASC
 		LIMIT ?
 	`
-	rows, err := al.AL.Query(query, from, to, numTimes)
+	rows, err := al.AL.Query(query, from, to, now, numTimes)
 	if err != nil {
 		return nil, err
 	}

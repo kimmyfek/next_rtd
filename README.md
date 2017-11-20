@@ -3,18 +3,100 @@ Instructions:
 ./next_rtd --parse=true --dbDir /opt/next-rtd --sourceDir /Users/jjob200/Downloads/google_transit
 ```
 
-- [ ] Save calendar data
+## Endpoints
+### Stations
+#### GET
+`HTTP/1.1 GET /stations`
+v1 -- No params required
+Returns stations and connections
+```json
+[{
+	"name": "13th Ave Station",
+	"connections": [{
+		"name": "2nd \u0026 Abilene Station"
+	}, {
+		"name": "Colfax Station"
+	}, {
+		"name": "County Line Station"
+	}, {
+		"name": "Dry Creek Station"
+	}, {
+		"name": "Fitzsimons Station"
+	}, {
+		"name": "Iliff Station"
+	}, {
+		"name": "Peoria Station"
+	}, {
+		"name": "Arapahoe at Village Center Station"
+	}, {
+		"name": "Lincoln Station"
+	}, {
+		"name": "Aurora Metro Center Station"
+	}, {
+		"name": "Florida Station"
+	}, {
+		"name": "Nine Mile Station"
+	}, {
+		"name": "Orchard Station"
+	}, {
+		"name": "Belleview Station"
+	}, {
+		"name": "Dayton Station"
+	}]
+}, {
+	"name": "Aurora Metro Center Station",
+	"connections": [{
+		"name": "Belleview Station"
+	}, {
+		"name": "Iliff Station"
+	}, {
+		"name": "Orchard Station"
+	}, {
+		"name": "Peoria Station"
+	}, {
+		"name": "Arapahoe at Village Center Station"
+	}, {
+		"name": "Colfax Station"
+	}, {
+		"name": "Nine Mile Station"
+	}, {
+		"name": "13th Ave Station"
+	}, {
+		"name": "2nd \u0026 Abilene Station"
+	}, {
+		"name": "Fitzsimons Station"
+	}, {
+		"name": "Florida Station"
+	}, {
+		"name": "Lincoln Station"
+	}, {
+		"name": "County Line Station"
+	}, {
+		"name": "Dayton Station"
+	}, {
+		"name": "Dry Creek Station"
+	}]
+}, ...]
+```
+
+### Times
+
+
+
+# TODO
+- [X] Save calendar data
 - [ ] get times based on now
 - [ ] Only get next times for today
 - [ ] Figure out how to grab tomorrow if rollover
 - [X] Add flags to startup
   - [X] Specify DB path
-  - [X] Whether to reload DB
-- [ ] Have the UI get served from the back-end
-- [ ] DB data replace
+  - [X] Whether to parse
+  - [X] What dir to get parse files from
+- [X] Have the UI get served from the back-end
 - [ ] Logging > printlns
+- [ ] Clean up parser
+- [ ] Parser writes to temp table and replaces instead
 
-# TODO
 ## Parsing
 - [X] Parse the data
 - [ ] Re-Pull data and parse after X duration
@@ -26,7 +108,6 @@ Instructions:
 
 ## Retrieving Data
 - [X] Create an API to serve the data
-- [ ] Serve the UI?
 - [X] Create endpoint to serve all stop locations: GET /stations
 - [X] Endpoint to serve all locations with connections
   - [ ] Connections should only be provided if `connections=true` /stations&connections=true
@@ -35,7 +116,7 @@ Instructions:
   - [ ] Better error codes and error json responses
   - [ ] Handle actual days
 	- [ ] Handle now = 11:59, provide tomorrow
-- [ ] Get Times, provide to and from station
+- [X] Get Times, provide to and from station
 
 ## Abstraction
 - [ ] Create abstraction layer _AFTER_ completing all of the above
@@ -51,3 +132,7 @@ Instructions:
 
 ## UI
 - [ ] Show arrival time to the _TO_ station
+
+
+-- If time is >= 24, subtract 24
+-- If day is Friday, Sat, Sun

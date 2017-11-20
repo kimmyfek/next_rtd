@@ -15,9 +15,6 @@ import (
 // TODO Merge union stations together
 // TODO stops with only a couple options? look at that data
 func ParseData(db *database.AccessLayer, fileDir string) {
-	// TODO Flags to point to file location or something
-
-	// TODO open each file individually
 	routes := parseRoutes(fileDir, "routes")
 	trips := parseTrips(routes, fileDir, "trips")
 	stopTimes, stopIDs := parseStopTimes(trips, fileDir, "stop_times") // TODO could switch back to stopid for key
