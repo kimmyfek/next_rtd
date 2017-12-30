@@ -6,6 +6,7 @@ var Grid = require('react-bootstrap/lib/Grid');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
 var Row = require('react-bootstrap/lib/Row');
 var Time = require('./Time');
+var axios = require('axios');
 
 var Station = React.createClass({
  	// sets initial state
@@ -23,6 +24,11 @@ var Station = React.createClass({
 
 	getConnectingStations: function(station){
         if(this.state.isDestination == false){
+          var conn = station.connections.sort(function(a, b) {
+			  var textA = a.name.toUpperCase();
+			  var textB = b.name.toUpperCase();
+			  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+		  });
           this.setState({stations: station.connections});
           this.setState({isDestination: true});
           this.setState({from: station.name});
@@ -34,14 +40,19 @@ var Station = React.createClass({
 
 
     getNextTimes: function(to, from){
-      this.setState({times: [{"time": "2:00pm", "line": "C"}, {"time": "2:01pm", "line": "C"}, {"time": "2:02pm", "line": "E"}]});
-      this.setState({direction: "Northbound"});
+	  to = encodeURIComponent(to);
+	  from = encodeURIComponent(from);
+	  axios.get('/times?to=' + to + '&from=' + from)
+      .then(res => {
+        this.setState({times:res.data});
+      });
     },
 
     componentWillReceiveProps(nextProps){
       if(nextProps.reset){
           this.setState(this.getInitialState());
       }
+      this.setState({stations:nextProps.stations});
       this.forceUpdate();
     },
 

@@ -26,9 +26,9 @@ var Time = React.createClass({
 		var me = this;
 		var listTimes = me.state.times.map(function(time) {
 			return (
-			  <h4 key={time.time + time.line}>
+			  <h4 key={time.departure_time + time.route}>
               <Well>
-			   Line {time.line} @ {time.time}
+			   Line {time.route} @ {time.departure_time}
 			  </Well></h4>
 			  );
 		  });
@@ -36,9 +36,7 @@ var Time = React.createClass({
       return (
         <div>
         <h3><span>{me.state.from} to {me.state.to} </span></h3>
-        <Label bsStyle="primary">{me.state.direction} </Label>
-        <br />
-        <br />
+        <hr />
         <br />
         <ListGroup vertical block>
           {listTimes}
