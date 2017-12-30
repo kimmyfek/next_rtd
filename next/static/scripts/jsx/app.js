@@ -5,10 +5,9 @@ var Grid = require('react-bootstrap/lib/Grid');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
 var Row = require('react-bootstrap/lib/Row');
 var Station = require('./Station');
-//const stationStyles = {maxWidth: 400, margin: '0 auto 10px'};
+var axios = require ('axios');
 
-var stations = [{"name": "Alameda",
-"connections": [{"name":"Union Station"},{"name":"Lincoln"}]}];
+//const stationStyles = {maxWidth: 400, margin: '0 auto 10px'};
 
 var startOverStyle = {"float": "right"};
 
@@ -17,7 +16,7 @@ var App = React.createClass({
 		return {
           to: "",
           from: "",
-          stations: stations,
+          stations: [],
           reset: false
         };
 	},
@@ -28,9 +27,27 @@ var App = React.createClass({
       //  this.forceUpdate();
       //  });
       this.setState({reset:true});
+      axios.get('/stations')
+      .then(res => {
+        var stationSorted = res.data.sort(function(a, b) {
+          var textA = a.name.toUpperCase();
+          var textB = b.name.toUpperCase();
+          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        });
+		this.setState({stations:stationSorted});
+      });
     },
 
     componentDidMount: function(){
+      axios.get('/stations')
+      .then(res => {
+        var stationSorted = res.data.sort(function(a, b) {
+          var textA = a.name.toUpperCase();
+          var textB = b.name.toUpperCase();
+          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        });
+		this.setState({stations:stationSorted});
+      });
       this.setState({reset:false});
     },
 
