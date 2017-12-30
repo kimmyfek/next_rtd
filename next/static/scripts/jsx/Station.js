@@ -1,4 +1,3 @@
-eee
 var React = require('react');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');

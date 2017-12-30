@@ -83,11 +83,11 @@ Returns stations and connections
 
 
 
-# TODO
+# Major TODO items
 - [X] Save calendar data
-- [ ] get times based on now
-- [ ] Only get next times for today
-- [ ] Figure out how to grab tomorrow if rollover
+- [X] get times based on now
+- [X] Only get next times for today
+- [ ] Figure out how to grab tomorrow if rollover :: MAJOR PRIORITY ::
 - [X] Add flags to startup
   - [X] Specify DB path
   - [X] Whether to parse
@@ -96,7 +96,9 @@ Returns stations and connections
 - [ ] Logging > printlns
 - [ ] Clean up parser
 - [ ] Parser writes to temp table and replaces instead
-- [ ] Change "arrival_from" to departure time
+- [ ] Fix union stations
+- [ ] Fucking interfaces
+- [X] Change "arrival_from" to departure time
 
 ## Parsing
 - [X] Parse the data
