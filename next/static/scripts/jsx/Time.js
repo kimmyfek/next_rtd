@@ -28,7 +28,13 @@ var Time = React.createClass({
 			return (
 			  <h4 key={time.departure_time + time.route}>
               <Well>
-			   Line {time.route} @ {time.departure_time}
+              <span className="next-train">
+			  {time.route}
+              </span>
+
+              <span className="next-time">
+              {time.departure_time}
+              </span>
 			  </Well></h4>
 			  );
 		  });
@@ -40,7 +46,7 @@ var Time = React.createClass({
         </div>
         <hr />
         <br />
-        <ListGroup vertical block>
+        <ListGroup vertical block className="time-list">
           {listTimes}
         </ListGroup>
         </div>

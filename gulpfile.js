@@ -10,7 +10,15 @@ var gulp = require('gulp'),
     changed = require('gulp-changed'),
     csslint = require('gulp-csslint'),
     eslint = require('gulp-eslint'),
-    size = require('gulp-size');
+    size = require('gulp-size'),
+    concatCss = require('gulp-concat-css');
+
+
+gulp.task('concatCss', function () {
+  return gulp.src('next/static/css/*.css')
+    .pipe(concatCss("bundle.css"))
+    .pipe(gulp.dest('next/static/css/'));
+});
 
 gulp.task('transformMain', function() {
   return gulp.src('./next/static/scripts/jsx/*.js')
@@ -32,6 +40,7 @@ gulp.task('default', ['clean'], function() {
   gulp.start('concat');
   gulp.start('transformMain');
   gulp.start('eslint');
+  gulp.start('concatCss');
   gulp.watch('./next/static/css/*.css', ['concat', 'csslint']);
   gulp.watch(['./next/static/scripts/jsx/*.js', './next/static/scripts/jsx/**/*.js'], ['transformMain', 'eslint']);
 });
@@ -46,7 +55,7 @@ gulp.task('eslint', function () {
 gulp.task('csslint', function() {
   gulp.src('./next/static/css/main.css')
     .pipe(csslint('csslintrc.json'))
-    .pipe(csslint.reporter('fail'));
+    .pipe(csslint.formatter('fail'));
 });
 
 gulp.task('copy', function() {
