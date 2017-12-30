@@ -96,7 +96,7 @@ func (rh *RestHandler) GetTimes(w http.ResponseWriter, r *http.Request) {
 	// TODO No from station
 	// TODO Days
 	now := formatTime(time.Now())
-	times, err := rh.DB.GetTimesForStations(to, from, now, numTimes)
+	times, err := rh.DB.GetTimesForStations(from, to, now, numTimes)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {

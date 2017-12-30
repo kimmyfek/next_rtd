@@ -484,7 +484,7 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 		ORDER BY departure_time ASC
 		LIMIT ?
 	`, day)
-	return al.AL.Query(query, from, to, now, numTimes)
+	return al.AL.Query(query, from, to, "23:50:00", numTimes)
 }
 
 // GetTimesForStations returns a list of time slots between two train stations
@@ -499,7 +499,7 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 	for rows.Next() {
 		// TODO scan to time object
 		var to, from, arrivalTime, departureTime, route string
-		rows.Scan(&to, &from, &departureTime, &arrivalTime, &route)
+		rows.Scan(&from, &to, &departureTime, &arrivalTime, &route)
 		times = append(times, m.Time{
 			From:          from,
 			To:            to,
