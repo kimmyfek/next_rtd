@@ -96,6 +96,7 @@ Returns stations and connections
 - [ ] Logging > printlns
 - [ ] Clean up parser
 - [ ] Parser writes to temp table and replaces instead
+- [ ] Change "arrival_from" to departure time
 
 ## Parsing
 - [X] Parse the data

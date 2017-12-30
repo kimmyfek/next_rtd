@@ -23,13 +23,13 @@ const (
 )
 
 var serviceIDMap = map[string]string{
-	time.Weekday(0).String(): "",
-	time.Weekday(1).String(): "",
-	time.Weekday(2).String(): "",
-	time.Weekday(3).String(): "",
-	time.Weekday(4).String(): "",
-	time.Weekday(5).String(): "",
-	time.Weekday(6).String(): "",
+	time.Weekday(0).String(): "sunday",
+	time.Weekday(1).String(): "monday",
+	time.Weekday(2).String(): "tuesday",
+	time.Weekday(3).String(): "wednesday",
+	time.Weekday(4).String(): "thursday",
+	time.Weekday(5).String(): "friday",
+	time.Weekday(6).String(): "saturday",
 }
 
 // AccessLayer is the object meant to be used to access the DB
@@ -446,7 +446,7 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 		SELECT DISTINCT
 			s.stop_name, -- from
 			s2.stop_name, -- to
-			st.arrival_time, -- from time
+			st.arrival_time AS departure_time, -- from time
 			s2.arrival_time, -- to time
 			r.route_short_name
 		FROM stops s
@@ -478,10 +478,10 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 		WHERE
 			s.stop_name = ?
 			AND s2.stop_name = ?
-			AND st.arrival_time < s2.arrival_time -- From time < To time
-			AND st.arrival_time > ?
+			AND departure_time < s2.arrival_time -- From time < To time
+			AND departure_time > ?
 			AND c.%s = 1
-		ORDER BY st.arrival_time ASC
+		ORDER BY departure_time ASC
 		LIMIT ?
 	`, day)
 	return al.AL.Query(query, from, to, now, numTimes)
@@ -489,8 +489,7 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 
 // GetTimesForStations returns a list of time slots between two train stations
 func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
-	// TODO need to determine the day of today
-	day := al.getServiceIDFromDay(0)
+	day := al.getServiceIDFromDay(0) // NOTE: Day might be something that's passed in
 	rows, err := al.getStationTimes(from, to, now, day, numTimes)
 	if err != nil {
 		return nil, err
@@ -499,26 +498,26 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 	defer rows.Close()
 	for rows.Next() {
 		// TODO scan to time object
-		var to, from, arrivalTo, arrivalFrom, route string
-		rows.Scan(&to, &from, &arrivalFrom, &arrivalTo, &route)
+		var to, from, arrivalTime, departureTime, route string
+		rows.Scan(&to, &from, &departureTime, &arrivalTime, &route)
 		times = append(times, m.Time{
-			From:        from,
-			To:          to,
-			ArrivalFrom: arrivalFrom,
-			ArrivalTo:   arrivalTo,
-			Route:       route,
+			From:          from,
+			To:            to,
+			DepartureTime: departureTime,
+			ArrivalTime:   arrivalTime,
+			Route:         route,
 		})
 	}
 
 	return times, nil
 }
 
-// Determine the weekday from this function and then return it to above, based on the delta
+// Determine the day of week from this function and then return it to above, based on the delta
 // Then in the above function determine if any of the results have hour >= 24. If so
 // will need to change the return value somehow.
 // If there are at less than numTimes results, I will need to query again for delta + 1
 // then add that to the list of times.
-func (al *AccessLayer) getServiceIDFromDay(delta int) string {
-	//now := time.Now()
-	return ""
+func (al *AccessLayer) getServiceIDFromDay(delta time.Duration) string {
+	now := time.Now().Add(delta)
+	return serviceIDMap[now.Weekday().String()]
 }

@@ -37,7 +37,7 @@ func (rh *RestHandler) Init() {
 	if err != nil {
 		panic(err)
 	}
-	http.Handle("/", http.FileServer(http.Dir(fmt.Sprintf("%s/next", dir)))) //rh.Index)
+	http.Handle("/", http.FileServer(http.Dir(fmt.Sprintf("%s/next", dir))))
 	http.HandleFunc("/stations", rh.GetStations)
 	http.HandleFunc("/times", rh.GetTimes)
 	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)

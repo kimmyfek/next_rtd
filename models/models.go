@@ -60,11 +60,11 @@ type Station struct {
 
 // Time how a Time payload is represented
 type Time struct {
-	To          string `json:"to"`
-	From        string `json:"from"`
-	ArrivalTo   string `json:"arrival_to"`
-	ArrivalFrom string `json:"arrival_from"`
-	Route       string `json:"route"`
+	To            string `json:"to"`
+	From          string `json:"from"`
+	ArrivalTime   string `json:"arrival_time"`
+	DepartureTime string `json:"departure_time"`
+	Route         string `json:"route"`
 }
 
 // Calendar represents day structure
