@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/fatih/set.v0"
 
@@ -20,6 +21,16 @@ const (
 	tripsTable     string = "trips"
 	calendarTable  string = "calendar"
 )
+
+var serviceIDMap = map[string]string{
+	time.Weekday(0).String(): "",
+	time.Weekday(1).String(): "",
+	time.Weekday(2).String(): "",
+	time.Weekday(3).String(): "",
+	time.Weekday(4).String(): "",
+	time.Weekday(5).String(): "",
+	time.Weekday(6).String(): "",
+}
 
 // AccessLayer is the object meant to be used to access the DB
 type AccessLayer struct {
@@ -430,9 +441,8 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 	return connections, nil
 }
 
-// GetTimesForStations returns a list of time slots between two train stations
-func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
-	query := `
+func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) (*sql.Rows, error) {
+	query := fmt.Sprintf(`
 		SELECT DISTINCT
 			s.stop_name, -- from
 			s2.stop_name, -- to
@@ -446,6 +456,8 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 			ON t.trip_id = st.trip_id
 		INNER JOIN routes r
 			ON r.route_id = t.route_id
+		INNER JOIN calendar c
+			ON c.service_id = t.service_id
 		INNER JOIN (
 			SELECT DISTINCT
 				s.stop_name,
@@ -457,6 +469,7 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 			INNER JOIN stop_times st ON st.stop_id = s.stop_id
 			INNER JOIN trips t ON t.trip_id = st.trip_id
 			INNER JOIN routes r ON r.route_id = t.route_id
+			INNER JOIN calendar c ON c.service_id = t.service_id
 		) s2
 			ON r.route_id = s2.route_id
 			AND s.stop_name != s2.stop_name
@@ -467,15 +480,22 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 			AND s2.stop_name = ?
 			AND st.arrival_time < s2.arrival_time -- From time < To time
 			AND st.arrival_time > ?
+			AND c.%s = 1
 		ORDER BY st.arrival_time ASC
 		LIMIT ?
-	`
-	rows, err := al.AL.Query(query, from, to, now, numTimes)
+	`, day)
+	return al.AL.Query(query, from, to, now, numTimes)
+}
+
+// GetTimesForStations returns a list of time slots between two train stations
+func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
+	// TODO need to determine the day of today
+	day := al.getServiceIDFromDay(0)
+	rows, err := al.getStationTimes(from, to, now, day, numTimes)
 	if err != nil {
 		return nil, err
 	}
-
-	times := []m.Time{}
+	var times []m.Time
 	defer rows.Close()
 	for rows.Next() {
 		// TODO scan to time object
@@ -491,4 +511,14 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 	}
 
 	return times, nil
+}
+
+// Determine the weekday from this function and then return it to above, based on the delta
+// Then in the above function determine if any of the results have hour >= 24. If so
+// will need to change the return value somehow.
+// If there are at less than numTimes results, I will need to query again for delta + 1
+// then add that to the list of times.
+func (al *AccessLayer) getServiceIDFromDay(delta int) string {
+	//now := time.Now()
+	return ""
 }

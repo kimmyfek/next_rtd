@@ -3,8 +3,9 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +33,11 @@ func NewRestHandler(db *database.AccessLayer, port int) *RestHandler {
 
 // Init defines the API endpoints and starts the HTTP server
 func (rh *RestHandler) Init() {
-	http.HandleFunc("/", rh.Index)
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		panic(err)
+	}
+	http.Handle("/", http.FileServer(http.Dir(fmt.Sprintf("%s/next", dir)))) //rh.Index)
 	http.HandleFunc("/stations", rh.GetStations)
 	http.HandleFunc("/times", rh.GetTimes)
 	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)
@@ -41,21 +46,7 @@ func (rh *RestHandler) Init() {
 // Index is sanity
 func (rh *RestHandler) Index(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("Hello"))
-	tmpl, err := template.New("ui").ParseFiles("next/templates/index.html")
-	if err != nil {
-		panic(err)
-	}
-	st, err := rh.DB.GetStationsAndConnections()
-	if err != nil {
-		w.Write([]byte(err.Error())) // TODO pass error to UI
-	} else {
-		j, err := json.Marshal(st)
-		if err != nil {
-			w.Write([]byte(err.Error())) // TODO Pass error to UI
-		} else {
-			tmpl.Execute(w, j)
-		}
-	}
+	http.ServeFile(w, r, "next/templates/index.html")
 }
 
 // GetStations queries the DB for a list of all stations and then returns them
