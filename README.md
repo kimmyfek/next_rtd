@@ -87,17 +87,26 @@ Returns stations and connections
 - [X] Save calendar data
 - [X] get times based on now
 - [X] Only get next times for today
-- [ ] Figure out how to grab tomorrow if rollover :: MAJOR PRIORITY ::
+- [X] Figure out how to grab tomorrow if rollover
 - [X] Add flags to startup
   - [X] Specify DB path
   - [X] Whether to parse
   - [X] What dir to get parse files from
 - [X] Have the UI get served from the back-end
 - [ ] Logging > printlns
+- [ ] Footer
+- [ ] Like, FB, Tweet
+- [ ] Contact us / Feedback / About
+- [ ] Ad?
+- [ ] Word light rail
+- [ ] SEO
+- [ ] MySQL?
+- [ ] Explain Query ?
 - [ ] Metrics
 - [ ] Clean up parser
 - [ ] Parser writes to temp table and replaces instead
 - [ ] Parser being able to deal with shitty rtd data
+- [ ] Indexes
 - [X] Combine Stations
   - [X] Union Station
   - [X] 38th & Blake Station
