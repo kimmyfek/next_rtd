@@ -94,11 +94,25 @@ Returns stations and connections
   - [X] What dir to get parse files from
 - [X] Have the UI get served from the back-end
 - [ ] Logging > printlns
+- [ ] Metrics
 - [ ] Clean up parser
 - [ ] Parser writes to temp table and replaces instead
-- [ ] Fix union stations
-- [ ] Fucking interfaces
+- [ ] Parser being able to deal with shitty rtd data
+- [X] Combine Stations
+  - [X] Union Station
+  - [X] 38th & Blake Station
+  - [X] 40th & Colorado Station
+  - [X] Central Park Station
+  - [X] Peoria Station
+  - [X] 40th Ave & Airport Blvd-Gateway Park Station
+  - [X] 61st & Pena Station
+  - [X] Westminster?
+- [ ] Fuckin' interfaces -- Need 'em
 - [X] Change "arrival_from" to departure time
+- [ ] Now is a really bad name for time in db
+- [ ] Move rtdtime struct
+- [ ] Lots and lots of tests
+- [ ] Dynamically pull data based on column position during parsing
 
 ## Parsing
 - [X] Parse the data
@@ -135,6 +149,7 @@ Returns stations and connections
 
 ## UI
 - [ ] Show arrival time to the _TO_ station
+- [ ] Create account, allowing "frequently visited stations"
 
 
 -- If time is >= 24, subtract 24

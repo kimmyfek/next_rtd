@@ -487,17 +487,71 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 	return al.AL.Query(query, from, to, now, numTimes)
 }
 
+type rtdTime struct {
+	h string
+	m string
+	s string
+}
+
+func newRTDTime(t string) *rtdTime {
+	c := strings.Split(t, ":")
+	return &rtdTime{h: c[0], m: c[1], s: c[2]}
+}
+
+func (r *rtdTime) toString() string {
+	return fmt.Sprintf("%s:%s:%s", r.h, r.m, r.s)
+}
+
+func (r *rtdTime) toStringRTDTime() string {
+	intH, _ := strconv.Atoi(r.h)
+	if intH <= 4 {
+		intH += 24
+	}
+	h := strconv.Itoa(intH)
+	return fmt.Sprintf("%s:%s:%s", h, r.m, r.s)
+}
+
+func (r *rtdTime) hourDelta(delta int) {
+	// This should be incapable of error since it's an hour time
+	intH, _ := strconv.Atoi(r.h)
+	intH += delta
+	r.h = strconv.Itoa(intH)
+}
+
 // GetTimesForStations returns a list of time slots between two train stations
+// Since times are weird in RTD data (24:00 under the Friday slot would actually
+// 	be midnight on Saturday), some time manipulation needs to be done in order
+// 	to get the appropriate results from the database.
+// The database is queried for 'RTD Time' (if < 5am, add 24 and day == yesterday)
+// if fewer than numTimes results are found, a second query is executed to
+// get the remaining times
 func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
-	day := al.getServiceIDFromDay(0) // NOTE: Day might be something that's passed in
-	rows, err := al.getStationTimes(from, to, now, day, numTimes)
+	var times []m.Time
+	t := newRTDTime(now)
+	// NOTE: Day might be something that's passed in
+	day := al.getServiceIDFromDay(0)
+	rows, err := al.getStationTimes(from, to, t.toStringRTDTime(), day, numTimes)
 	if err != nil {
 		return nil, err
 	}
+	times = append(times, parseStationTimeRows(rows)...)
+
+	if len(times) < numTimes {
+		day = al.getServiceIDFromDay(24 * time.Hour)
+		rows, err := al.getStationTimes(from, to, t.toString(), day, numTimes-len(times))
+		if err != nil {
+			return nil, err
+		}
+		times = append(times, parseStationTimeRows(rows)...)
+
+	}
+	return times, nil
+}
+
+func parseStationTimeRows(rows *sql.Rows) []m.Time {
 	var times []m.Time
 	defer rows.Close()
 	for rows.Next() {
-		// TODO scan to time object
 		var to, from, arrivalTime, departureTime, route string
 		rows.Scan(&from, &to, &departureTime, &arrivalTime, &route)
 		times = append(times, m.Time{
@@ -509,15 +563,16 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 		})
 	}
 
-	return times, nil
+	return times
 }
 
-// Determine the day of week from this function and then return it to above, based on the delta
-// Then in the above function determine if any of the results have hour >= 24. If so
-// will need to change the return value somehow.
-// If there are at less than numTimes results, I will need to query again for delta + 1
-// then add that to the list of times.
+// getServiceIDFromDay determines the day of the week based on now, adjusted by delta.
+// Due to a day by RTD standards going up to a maximum of 27 o'clock, if today
+// is still before 5 AM, the clock gets rolled back to yesterday.
 func (al *AccessLayer) getServiceIDFromDay(delta time.Duration) string {
 	now := time.Now().Add(delta)
+	if now.Hour() <= 4 {
+		now = now.Add(-5 * time.Hour)
+	}
 	return serviceIDMap[now.Weekday().String()]
 }

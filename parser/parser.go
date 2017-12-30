@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/kimmyfek/next_rtd/database"
 	m "github.com/kimmyfek/next_rtd/models"
@@ -179,6 +180,17 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 	stops := make(map[string]m.Stop)
 	r := csv.NewReader(f)
 
+	shortNames := []string{
+		"Union Station",
+		"38th & Blake Station",
+		"40th & Colorado Station",
+		"40th Ave & Airport Blvd - Gateway Park Station",
+		"61st & Pena Station",
+		"Central Park Station",
+		"Peoria Station",
+		"Westminster Station",
+	}
+
 	for {
 		if stop, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -187,11 +199,18 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 				panic(fmt.Sprintf("Unable to parse stops: %s", err))
 			}
 		} else {
+			stopName := stop[2]
+			for _, short := range shortNames {
+				if strings.Contains(stopName, short) {
+					stopName = short
+					break
+				}
+			}
 			if ok := stopIDs.Has(stop[0]); ok == true {
 				stops[stop[0]] = m.Stop{
 					StopID:             stop[0],
 					StopCode:           stop[1],
-					StopName:           stop[2],
+					StopName:           stopName,
 					StopDesc:           stop[3],
 					StopLat:            stop[4],
 					StopLon:            stop[5],
