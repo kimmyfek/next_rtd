@@ -77,24 +77,29 @@ var Station = React.createClass({
                         times={me.state.times}
                         direction={me.state.direction} /> );
             } else {
-              return (<div>Loading</div>);
+              return (<div className="loading"></div>);
             }
         } else {
 
 		var listStations = this.state.stations.map(function(station) {
 			return (
+            <div className="station" key={"station" + station.name}>
 			  <Button
-                key={station.name}
+                key={"btn"+station.name}
 				onClick={ () => {me.getConnectingStations(station)}}>
-			   {station.name}
+                <div key={station.name} className="station-btn-text">
+			      {station.name}
+               </div>
 			  </Button>
+              <br />
+            </div>
 			  );
 		  });
       return (
         <div>
-        <h3>{me.state.pageText}</h3>
+          <h3>{me.state.pageText}</h3>
         <br />
-        <ButtonGroup vertical block>
+        <ButtonGroup vertical block className="stations">
           {listStations}
         </ButtonGroup>
         </div>

@@ -1,0 +1,32 @@
+.stations {
+  -webkit-column-count: 2;
+     -moz-column-count: 2;
+          column-count: 2;
+}
+
+.station {
+  margin-bottom: 1px;
+}
+
+.station button {
+  width: 100%;
+  height: 70px;
+  margin-bottom: 10px;
+}
+
+.station-btn-text {
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.header{
+  width: 75%;
+}
+
+.reset-btn {
+  float: right;
+  position: absolute;
+  top: 21px;
+  right: 10px;
+
+}

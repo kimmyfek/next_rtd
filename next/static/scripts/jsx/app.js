@@ -7,10 +7,6 @@ var Row = require('react-bootstrap/lib/Row');
 var Station = require('./Station');
 var axios = require ('axios');
 
-//const stationStyles = {maxWidth: 400, margin: '0 auto 10px'};
-
-var startOverStyle = {"float": "right"};
-
 var App = React.createClass({
 	getInitialState: function(){
 		return {
@@ -54,28 +50,17 @@ var App = React.createClass({
 	render: function(){
 	  return (
 		<div>
-		  <PageHeader>
-          <div style={startOverStyle}>
+		  <div className="header">
+          <div className="reset-btn">
             <Button onClick= {() => this.startOver(this)}
               bsSize="xsmall"
               bsStyle="warning">Start Over
             </Button>
           </div>
-          <center>NXT RTD</center>
-          </PageHeader>
-		  <Grid>
-			<Row className="show-grid">
-			  <Col md={4}>
-			  </Col>
-			  <Col md={4}>
-			  <div id="from_stations">
-				  <Station stations={this.state.stations} reset={this.state.reset} />
-			  </div>
-			  </Col>
-			  <Col md={4}>
-			  </Col>
-			</Row>
-		  </Grid>
+          </div>
+          <div id="from_stations">
+              <Station stations={this.state.stations} reset={this.state.reset} />
+          </div>
 		</div>
 	  );
 	}

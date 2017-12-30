@@ -35,7 +35,9 @@ var Time = React.createClass({
 
       return (
         <div>
+        <div className="header">
         <h3><span>{me.state.from} to {me.state.to} </span></h3>
+        </div>
         <hr />
         <br />
         <ListGroup vertical block>
