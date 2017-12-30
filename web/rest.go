@@ -43,12 +43,6 @@ func (rh *RestHandler) Init() {
 	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)
 }
 
-// Index is sanity
-func (rh *RestHandler) Index(w http.ResponseWriter, r *http.Request) {
-	//w.Write([]byte("Hello"))
-	http.ServeFile(w, r, "next/templates/index.html")
-}
-
 // GetStations queries the DB for a list of all stations and then returns them
 // to the caller.
 // Adding argument "connections=true" will provide all connecting stations.

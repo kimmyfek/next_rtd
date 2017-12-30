@@ -1,3 +1,4 @@
 node_modules/*
 parser/parser
 .DS_Store
+scripts/js/
