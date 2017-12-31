@@ -93,6 +93,26 @@ Returns stations and connections
   - [X] Whether to parse
   - [X] What dir to get parse files from
 - [X] Have the UI get served from the back-end
+- [X] Combine Stations
+  - [X] Union Station
+  - [X] 38th & Blake Station
+  - [X] 40th & Colorado Station
+  - [X] Central Park Station
+  - [X] Peoria Station
+  - [X] 40th Ave & Airport Blvd-Gateway Park Station
+  - [X] 61st & Pena Station
+  - [X] Westminster?
+- [X] Change "arrival_from" to departure time
+- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4|
+- [ ] Fuckin' interfaces -- Need 'em
+- [ ] Now is a really bad name for time in db
+- [ ] Move rtdtime struct
+- [ ] Lots and lots of tests
+- [ ] Dynamically pull data based on column position during parsing
+- [ ] DNS
+- [ ] Build script needs to work
+- [ ] Fix initial load
+- [ ] Hosting is not ideal
 - [ ] Logging > printlns
 - [ ] Footer
 - [ ] Like, FB, Tweet
@@ -107,21 +127,6 @@ Returns stations and connections
 - [ ] Parser writes to temp table and replaces instead
 - [ ] Parser being able to deal with shitty rtd data
 - [ ] Indexes
-- [X] Combine Stations
-  - [X] Union Station
-  - [X] 38th & Blake Station
-  - [X] 40th & Colorado Station
-  - [X] Central Park Station
-  - [X] Peoria Station
-  - [X] 40th Ave & Airport Blvd-Gateway Park Station
-  - [X] 61st & Pena Station
-  - [X] Westminster?
-- [ ] Fuckin' interfaces -- Need 'em
-- [X] Change "arrival_from" to departure time
-- [ ] Now is a really bad name for time in db
-- [ ] Move rtdtime struct
-- [ ] Lots and lots of tests
-- [ ] Dynamically pull data based on column position during parsing
 
 ## Parsing
 - [X] Parse the data
