@@ -24,11 +24,13 @@ var Station = React.createClass({
 
 	getConnectingStations: function(station){
         if(this.state.isDestination == false){
+          // sort the station names
           var conn = station.connections.sort(function(a, b) {
 			  var textA = a.name.toUpperCase();
 			  var textB = b.name.toUpperCase();
 			  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 		  });
+
           this.setState({stations: station.connections});
           this.setState({isDestination: true});
           this.setState({from: station.name});
@@ -44,6 +46,12 @@ var Station = React.createClass({
 	  from = encodeURIComponent(from);
 	  axios.get('/times?to=' + to + '&from=' + from)
       .then(res => {
+        // times should already be sorted; commenting out
+        //  var times= res.data.sort(function(a, b) {
+		//	  var textA = a.arrival_time;
+		//	  var textB = b.arrival_time;
+		//	  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+		//  });
         this.setState({times:res.data});
       });
     },
