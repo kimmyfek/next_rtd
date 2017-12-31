@@ -4,3 +4,4 @@ parser/parser
 next/static/scripts/js/
 next_rtd
 nxt-darwin
+runboard/*
