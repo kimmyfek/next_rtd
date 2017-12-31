@@ -1,3 +1,78 @@
+# Major TODO items
+- [X] Save calendar data
+- [X] get times based on now
+- [X] Only get next times for today
+- [X] Figure out how to grab tomorrow if rollover
+- [X] Add flags to startup
+  - [X] Specify DB path
+  - [X] Whether to parse
+  - [X] What dir to get parse files from
+- [X] Have the UI get served from the back-end
+- [X] Combine Stations
+  - [X] Union Station
+  - [X] 38th & Blake Station
+  - [X] 40th & Colorado Station
+  - [X] Central Park Station
+  - [X] Peoria Station
+  - [X] 40th Ave & Airport Blvd-Gateway Park Station
+  - [X] 61st & Pena Station
+  - [X] Westminster?
+- [X] Change "arrival_from" to departure time
+- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
+- [ ] Fuckin' interfaces -- Need 'em (J)
+- [ ] Now is a really bad name for time in db.go (J)
+- [ ] Move rtdtime struct (J) 
+- [ ] Lots and lots of tests Backend (J)
+- [ ] Lots and lots of tests Frontend (K)
+- [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
+- [ ] DNS (K)
+- [ ] Build script needs to work (J)
+- [ ] Fix initial load (J)
+- [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
+- [ ] Logging > printlns (J)
+- [ ] Footer (K)
+- [ ] Like, FB, Tweet (K)
+- [ ] Contact us / Feedback / About (K)
+- [ ] Ad? (J / K)
+- [ ] Word light rail (K)
+- [ ] SEO (J / K)
+- [ ] MySQL? (J / K)
+- [ ] Explain Query ? (J / K)
+- [ ] Metrics (J)
+- [ ] Clean up parser (J)
+- [ ] Parser writes to temp table and replaces instead (J)
+- [ ] Indexes (J / K)
+- [ ] Show arrival time to the _TO_ station (K)
+- [ ] Clean up frontend code (K)
+- [ ] New react style (K) 
+- [ ] Create account, allowing "frequently visited stations" (J + K)
+
+## Parsing
+- [X] Parse the data
+- [ ] Re-Pull data and parse after X duration (J)
+
+## Saving
+- [X] Save the data to the DB
+- [X] Create queries for saving to DB
+- [X] Create generic function for saving to DB
+
+## Retrieving Data
+- [X] Create an API to serve the data
+- [X] Create endpoint to serve all stop locations: GET /stations
+- [X] Endpoint to serve all locations with connections
+  - [ ] Connections should only be provided if `connections=true` /stations&connections=true (J + K)
+- [X] Endpoint to serve all locatons, with connections, with next X incoming times
+  - [ ] If `to` isn't provided, show all directions (J + K)
+  - [ ] Better error codes and error json responses (J + K)
+- [X] Get Times, provide to and from station
+
+## Abstraction
+- [ ] Create abstraction layer _AFTER_ completing all of the above
+
+## UI
+
+
+
 Instructions:
 ```
 ./next_rtd --parse=true --dbDir /opt/next-rtd --sourceDir /Users/jjob200/Downloads/google_transit
@@ -81,90 +156,3 @@ Returns stations and connections
 
 ### Times
 
-
-
-# Major TODO items
-- [X] Save calendar data
-- [X] get times based on now
-- [X] Only get next times for today
-- [X] Figure out how to grab tomorrow if rollover
-- [X] Add flags to startup
-  - [X] Specify DB path
-  - [X] Whether to parse
-  - [X] What dir to get parse files from
-- [X] Have the UI get served from the back-end
-- [X] Combine Stations
-  - [X] Union Station
-  - [X] 38th & Blake Station
-  - [X] 40th & Colorado Station
-  - [X] Central Park Station
-  - [X] Peoria Station
-  - [X] 40th Ave & Airport Blvd-Gateway Park Station
-  - [X] 61st & Pena Station
-  - [X] Westminster?
-- [X] Change "arrival_from" to departure time
-- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4|
-- [ ] Fuckin' interfaces -- Need 'em
-- [ ] Now is a really bad name for time in db
-- [ ] Move rtdtime struct
-- [ ] Lots and lots of tests
-- [ ] Dynamically pull data based on column position during parsing
-- [ ] DNS
-- [ ] Build script needs to work
-- [ ] Fix initial load
-- [ ] Hosting is not ideal
-- [ ] Logging > printlns
-- [ ] Footer
-- [ ] Like, FB, Tweet
-- [ ] Contact us / Feedback / About
-- [ ] Ad?
-- [ ] Word light rail
-- [ ] SEO
-- [ ] MySQL?
-- [ ] Explain Query ?
-- [ ] Metrics
-- [ ] Clean up parser
-- [ ] Parser writes to temp table and replaces instead
-- [ ] Parser being able to deal with shitty rtd data
-- [ ] Indexes
-
-## Parsing
-- [X] Parse the data
-- [ ] Re-Pull data and parse after X duration
-
-## Saving
-- [X] Save the data to the DB
-- [X] Create queries for saving to DB
-- [X] Create generic function for saving to DB
-
-## Retrieving Data
-- [X] Create an API to serve the data
-- [X] Create endpoint to serve all stop locations: GET /stations
-- [X] Endpoint to serve all locations with connections
-  - [ ] Connections should only be provided if `connections=true` /stations&connections=true
-- [X] Endpoint to serve all locatons, with connections, with next X incoming times
-  - [ ] If `to` isn't provided, show all directions
-  - [ ] Better error codes and error json responses
-  - [ ] Handle actual days
-	- [ ] Handle now = 11:59, provide tomorrow
-- [X] Get Times, provide to and from station
-
-## Abstraction
-- [ ] Create abstraction layer _AFTER_ completing all of the above
-  - [ ] Abstract save routes
-  - [ ] Abstract save times
-  - [ ] Abstract save 3
-  - [ ] Abstract save 4
-  - [ ] Abstract get stations
-  - [ ] Abstract get stations with connections
-  - [ ] Abstract get all times
-  - [ ] Abstract get 1 station times
-  - [ ] Abstract get 2 station times
-
-## UI
-- [ ] Show arrival time to the _TO_ station
-- [ ] Create account, allowing "frequently visited stations"
-
-
--- If time is >= 24, subtract 24
--- If day is Friday, Sat, Sun
