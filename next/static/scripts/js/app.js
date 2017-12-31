@@ -25,11 +25,13 @@ var Station = React.createClass({displayName: "Station",
 
 	getConnectingStations: function(station){
         if(this.state.isDestination == false){
+          // sort the station names
           var conn = station.connections.sort(function(a, b) {
 			  var textA = a.name.toUpperCase();
 			  var textB = b.name.toUpperCase();
 			  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 		  });
+
           this.setState({stations: station.connections});
           this.setState({isDestination: true});
           this.setState({from: station.name});
@@ -45,6 +47,12 @@ var Station = React.createClass({displayName: "Station",
 	  from = encodeURIComponent(from);
 	  axios.get('/times?to=' + to + '&from=' + from)
       .then(res => {
+        // times should already be sorted; commenting out
+        //  var times= res.data.sort(function(a, b) {
+		//	  var textA = a.arrival_time;
+		//	  var textB = b.arrival_time;
+		//	  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+		//  });
         this.setState({times:res.data});
       });
     },
@@ -143,16 +151,30 @@ var Time = React.createClass({displayName: "Time",
  	render: function() {
 		var me = this;
 		var listTimes = me.state.times.map(function(time) {
+            // format the time
+            var d_time = time.departure_time;
+            var d_hr = parseInt(d_time.substring(0,2));
+            var d_min = d_time.substring(3,5);
+            var am_pm = 'AM';
+            if (d_hr >= 24){
+                d_hr -= 24;
+                am_pm = 'AM';
+            } else if (d_hr >=12 && d_hr < 24){
+                if (d_hr != 12){
+                    d_hr -= 12;
+                }
+                am_pm = 'PM';
+            }
+
 			return (
 			  React.createElement("h4", {key: time.departure_time + time.route}, 
               React.createElement(Well, null, 
-              React.createElement("span", {className: "next-train"}, 
-			  time.route
-              ), 
-
-              React.createElement("span", {className: "next-time"}, 
-              time.departure_time
-              )
+                React.createElement("span", {className: "next-train"}, 
+                time.route
+                ), 
+                React.createElement("span", {className: "next-time"}, 
+                d_hr.toString() + ":" + d_min.toString() + " " + am_pm
+                )
 			  ))
 			  );
 		  });
