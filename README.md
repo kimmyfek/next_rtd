@@ -46,6 +46,7 @@
 - [ ] Clean up frontend code (K)
 - [ ] New react style (K) 
 - [ ] Create account, allowing "frequently visited stations" (J + K)
+- [ ] Validate data
 
 ## Parsing
 - [X] Parse the data
