@@ -25,48 +25,65 @@ var Time = React.createClass({displayName: "Time",
 
  	render: function() {
 		var me = this;
-		var listTimes = me.state.times.map(function(time) {
-            // format the time
-            var d_time = time.departure_time;
-            var d_hr = parseInt(d_time.substring(0,2));
-            var d_min = d_time.substring(3,5);
-            var am_pm = 'AM';
-            if (d_hr >= 24){
-                d_hr -= 24;
-                am_pm = 'AM';
-            } else if (d_hr >=12 && d_hr < 24){
-                if (d_hr != 12){
-                    d_hr -= 12;
+
+        if (me.state.times == null){
+            return (
+              React.createElement("div", null, 
+              React.createElement("div", {className: "header"}, 
+              React.createElement("h3", null, React.createElement("span", null, me.state.from, " to ", me.state.to, " "))
+              ), 
+              React.createElement("hr", null), 
+              React.createElement("br", null), 
+              React.createElement("div", {className: "alert alert-warning"}, 
+              React.createElement("span", null, "There are no available times right now ")
+              )
+              )
+            );
+        } else {
+            var listTimes = me.state.times.map(function(time) {
+                // format the time
+                var d_time = time.departure_time;
+                var d_hr = parseInt(d_time.substring(0,2));
+                var d_min = d_time.substring(3,5);
+                var am_pm = 'AM';
+                if (d_hr >= 24){
+                    d_hr -= 24;
+                    if (d_hr == 0){
+                        d_hr = 12;
+                    }
+                    am_pm = 'AM';
+                } else if (d_hr >=12 && d_hr < 24){
+                    if (d_hr != 12){
+                        d_hr -= 12;
+                    }
+                    am_pm = 'PM';
                 }
-                am_pm = 'PM';
-            }
 
-			return (
-			  React.createElement("h4", {key: time.departure_time + time.route}, 
-              React.createElement(Well, null, 
-                React.createElement("span", {className: "next-train"}, 
-                time.route
+                return (
+                  React.createElement("h4", {key: time.departure_time + time.route}, 
+                  React.createElement(Well, null, 
+                    React.createElement("span", {className: "next-train"}, 
+                    time.route
+                    ), 
+                    React.createElement("span", {className: "next-time"}, 
+                    d_hr.toString() + ":" + d_min.toString() + " " + am_pm
+                    )
+                  ))
+                  );
+              });
+              return (
+                React.createElement("div", null, 
+                React.createElement("div", {className: "header"}, 
+                React.createElement("h3", null, React.createElement("span", null, me.state.from, " to ", me.state.to, " "))
                 ), 
-                React.createElement("span", {className: "next-time"}, 
-                d_hr.toString() + ":" + d_min.toString() + " " + am_pm
+                React.createElement("hr", null), 
+                React.createElement("br", null), 
+                React.createElement(ListGroup, {vertical: true, block: true, className: "time-list"}, 
+                  listTimes
                 )
-			  ))
-			  );
-		  });
-
-      return (
-        React.createElement("div", null, 
-        React.createElement("div", {className: "header"}, 
-        React.createElement("h3", null, React.createElement("span", null, me.state.from, " to ", me.state.to, " "))
-        ), 
-        React.createElement("hr", null), 
-        React.createElement("br", null), 
-        React.createElement(ListGroup, {vertical: true, block: true, className: "time-list"}, 
-          listTimes
-        )
-        )
-      );
-
+                )
+              );
+        }
  	}
 });
 
