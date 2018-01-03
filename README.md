@@ -13,17 +13,11 @@
 - [X] Fix time showing in wrong TZ on deployed server by changing TZ.
 - [X] Fix bug causing panic. (Bug was caused by extra space coming in from date formatting. Decided to change from `time.Stamp` to `time.RubyDate` which shouldn't add another space, messing up parsing.
 - [X] Cache Station Data
-- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
-- [ ] Fuckin' interfaces -- Need 'em (J)
-- [ ] Now is a really bad name for time in db.go (J)
-- [ ] Move rtdtime struct (J) 
-- [ ] Lots and lots of tests Backend (J)
+- [X] Indexes (J)
+- [X] Explain Query ? (J / K)
 - [ ] Startup flags should be pointing to prod dirs (J)
-- [ ] Lots and lots of tests Frontend (K)
-- [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
 - [ ] DNS (K)
 - [ ] Build script needs to work (J)
-- [ ] Fix initial load (J)
 - [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Logging > printlns (J)
 - [ ] Footer (K)
@@ -32,47 +26,41 @@
 - [ ] Ad? (J / K)
 - [ ] Word light rail (K)
 - [ ] SEO (J / K)
-- [ ] MySQL? (J / K)
-- [ ] Explain Query ? (J / K)
-- [ ] Metrics (J)
-- [ ] Clean up parser (J)
-- [ ] Parser writes to temp table and replaces instead (J)
-- [ ] Indexes (J / K)
 - [ ] Show arrival time to the _TO_ station (K)
-- [ ] Clean up frontend code (K)
-- [ ] New react style (K) 
-- [ ] Create account, allowing "frequently visited stations" (J + K)
 - [ ] Validate data (J / K)
 - [ ] Automatically notate if we send null data for times (J)
-- [ ] Theatre district as convention center (Make it a map?)
-- [ ] HTTP Server (J / K)
-- [ ] Refresh cache on reload (J)
+- [ ] Theatre district as convention center (Make it a map?) (J)
+- Performance Optimizations
+  - [ ] MySQL? (J / K)
+  - [ ] HTTP Server like Apache (J / K)
+- Parser Improvements
+  - [ ] Refresh cache on reload (J)
+  - [ ] Parser writes to temp table and replaces instead (J)
+  - [ ] Re-Pull data and parse after X duration (J)
+  - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
 
-## Parsing
-- [X] Parse the data
-- [ ] Re-Pull data and parse after X duration (J)
+## Server Cleanup
+- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
+- [ ] Fuckin' interfaces -- Need 'em (J)
+- [ ] Now is a really bad name for time in db.go (J)
+- [ ] Move rtdtime struct (J) 
+- [ ] Lots and lots of tests Backend (J)
+- [ ] Clean up parser (J)
+- [ ] Metrics (J)
 
-## Saving
-- [X] Save the data to the DB
-- [X] Create queries for saving to DB
-- [X] Create generic function for saving to DB
+## UI Cleanup
+- [ ] Clean up frontend code (K)
+- [ ] New react style (K) 
+- [ ] Lots and lots of tests Frontend (K)
 
-## Retrieving Data
-- [X] Create an API to serve the data
-- [X] Create endpoint to serve all stop locations: GET /stations
-- [X] Endpoint to serve all locations with connections
-  - [ ] Connections should only be provided if `connections=true` /stations&connections=true (J + K)
-- [X] Endpoint to serve all locatons, with connections, with next X incoming times
+## Proper API Handling
+- More RESTful
   - [ ] If `to` isn't provided, show all directions (J + K)
   - [ ] Better error codes and error json responses (J + K)
-- [X] Get Times, provide to and from station
+  - [ ] Connections should only be provided if `connections=true` /stations&connections=true (J + K)
 
-## Abstraction
-- [ ] Create abstraction layer _AFTER_ completing all of the above
-
-## UI
-
-
+## Advanced Features
+- [ ] Create account, allowing "frequently visited stations" (J + K)
 
 Instructions:
 ```
