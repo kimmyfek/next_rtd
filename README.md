@@ -19,6 +19,7 @@
   - [X] Westminster?
 - [X] Change "arrival_from" to departure time
 - [X] Fix time showing in wrong TZ on deployed server by changing TZ.
+- [X] Fix bug causing panic. (Bug was caused by extra space coming in from date formatting. Decided to change from `time.Stamp` to `time.RubyDate` which shouldn't add another space, messing up parsing.
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
 - [ ] Fuckin' interfaces -- Need 'em (J)
 - [ ] Now is a really bad name for time in db.go (J)
