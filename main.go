@@ -11,7 +11,7 @@ import (
 
 var parse = flag.Bool("parse", false, "If provided will parse data and add to DB. Default: Disabled")
 var dbDir = flag.String("dbDir", "/opt/next-rtd", "Path for Sqlite DB file.")
-var sourceDir = flag.String("sourceDir", "/Users/jjob200/Downloads/google_transit", "Dir where source RTD txt files are located. NOT NEEDED IF PARSE=false")
+var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt files are located. NOT NEEDED IF PARSE=false")
 
 func main() {
 	fmt.Println("Application Initialization Begin...")

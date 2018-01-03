@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/kimmyfek/next_rtd/database"
+	"github.com/kimmyfek/next_rtd/models"
 )
 
 func main() {
@@ -19,8 +20,9 @@ func main() {
 
 // RestHandler allows dependency injection for REST calls
 type RestHandler struct {
-	DB   *database.AccessLayer
-	Port int
+	DB       *database.AccessLayer
+	Port     int
+	stations []models.Station
 }
 
 // NewRestHandler returns a new instance of the RestHandler obj
@@ -40,6 +42,11 @@ func (rh *RestHandler) Init() {
 	http.Handle("/", http.FileServer(http.Dir(fmt.Sprintf("%s/next", dir))))
 	http.HandleFunc("/stations", rh.GetStations)
 	http.HandleFunc("/times", rh.GetTimes)
+	st, err := rh.DB.GetStationsAndConnections()
+	if err != nil {
+		panic(err)
+	}
+	rh.stations = st
 	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)
 }
 
@@ -48,16 +55,11 @@ func (rh *RestHandler) Init() {
 // Adding argument "connections=true" will provide all connecting stations.
 func (rh *RestHandler) GetStations(w http.ResponseWriter, r *http.Request) {
 	// TODO If connections param is true
-	st, err := rh.DB.GetStationsAndConnections()
+	j, err := json.Marshal(rh.stations)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
-		j, err := json.Marshal(st)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-		} else {
-			w.Write(j)
-		}
+		w.Write(j)
 	}
 }
 
@@ -111,5 +113,5 @@ func (rh *RestHandler) GetTimes(w http.ResponseWriter, r *http.Request) {
 }
 
 func formatTime(t time.Time) string {
-	return strings.Split(t.Format(time.Stamp), " ")[2]
+	return strings.Split(t.Format(time.RubyDate), " ")[3]
 }

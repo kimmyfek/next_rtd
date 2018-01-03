@@ -70,6 +70,12 @@ func (al *AccessLayer) Open() error {
 		}
 		fmt.Println("Created routes table")
 
+		_, err = al.AL.Exec("CREATE UNIQUE INDEX idx_route_id ON routes(route_id)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", routesTable)
+			return err
+		}
+		fmt.Println("Created routes index")
 	}
 
 	if !al.tableExists(stopsTable) {
@@ -87,6 +93,14 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created stops table")
+
+		_, err = al.AL.Exec("CREATE UNIQUE INDEX idx_stop_id ON stops(stop_id)")
+		_, err = al.AL.Exec("CREATE INDEX idx_stop_name ON stops(stop_name)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", stopsTable)
+			return err
+		}
+		fmt.Println("Created stops index")
 	}
 	if !al.tableExists(stopTimesTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -103,6 +117,13 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created stop times table")
+
+		_, err = al.AL.Exec("CREATE INDEX idx_arrival_time ON stop_times(arrival_time)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", stopTimesTable)
+			return err
+		}
+		fmt.Println("Created stop times index")
 	}
 	if !al.tableExists(tripsTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -119,6 +140,14 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created trips table")
+
+		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON trips(trip_id)")
+		_, err = al.AL.Exec("CREATE INDEX idx_service_id ON trips(service_id)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", tripsTable)
+			return err
+		}
+		fmt.Println("Created trips index")
 	}
 	if !al.tableExists(calendarTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -141,11 +170,21 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created calendar table")
+
 	}
 	return nil
 }
 
 func (al *AccessLayer) tableExists(name string) bool {
+	var n string
+	err := al.AL.QueryRow("SELECT name FROM sqlite_master WHERE name = ?", name).Scan(&n)
+	if err == nil && n == name {
+		return true
+	}
+	return false
+}
+
+func (al *AccessLayer) indexExists(name string) bool {
 	var n string
 	err := al.AL.QueryRow("SELECT name FROM sqlite_master WHERE name = ?", name).Scan(&n)
 	if err == nil && n == name {

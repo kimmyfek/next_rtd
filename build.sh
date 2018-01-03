@@ -1,16 +1,34 @@
 #!/bin/bash
+set -ex
 
-case "$OSTYPE" in
-    darwin*)
-        export HOST_OS="darwin"
+TARGET_OS=$2
+
+if [ -z "$TARGET_OS" ]; then
+	TARGET_OS="darwin"
+fi
+
+case "$TARGET_OS" in
+    darwin)
+        export GOARCH="amd64"
+        export GOOS="darwin"
         ;;
-    linux*)
-        export HOST_OS="linux"
+    linux)
+        export GOARCH="amd64"
+        export GOOS="linux"
         ;;
     *)
-        echo "unknown OS Type: $OSTYPE"
+        echo "Unknown Target OS: $TARGET_OS"
         exit 1
         ;;
 esac
 
-docker run --rm -v "$PWD":/go/src/github.com/kimmyfek/next_rtd -w /go/src/github.com/kimmyfek/next_rtd golang:1.8 /bin/bash -c "go get && export GOOS=$HOST_OS && go build -v -o nxt-darwin"
+export CGO_ENABLED=1
+
+docker run --rm --name nxt-rtd-build \
+	-v $GOPATH:/go \
+	-w /go/src/github.com/kimmyfek/next_rtd \
+	-e GOOS=$GOOS \
+	-e GOARCH=$GOARCH \
+	#-e CGO_ENABLED=$CGO_ENABLED \
+	golang:1.8 \
+	go build -v -o nxt-$GOOS-$GOARCH
