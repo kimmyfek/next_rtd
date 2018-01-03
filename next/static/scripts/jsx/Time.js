@@ -1,28 +1,18 @@
-var React = require('react');
-var Button = require('react-bootstrap/lib/Button');
-var Well = require('react-bootstrap/lib/Well');
-var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
-var ListGroup = require('react-bootstrap/lib/ListGroup');
-var ListGroupItem = require('react-bootstrap/lib/ListGroupItem');
-var Label = require('react-bootstrap/lib/Label');
-var Col = require('react-bootstrap/lib/Col');
-var Grid = require('react-bootstrap/lib/Grid');
-var PageHeader = require('react-bootstrap/lib/PageHeader');
-var Row = require('react-bootstrap/lib/Row');
+import React from 'react';
+import { Button, ButtonGroup, ListGroup, ListGroupItem, Label, Well, Col, Grid, PageHeader, Row } from 'react-bootstrap';
 
-var Time = React.createClass({
+class Time extends React.Component {
  	// sets initial state
-	getInitialState: function(){
-		return {
-          to: this.props.to,
+    constructor(props) {
+        super(props);
+        this.state = {to: this.props.to,
           from: this.props.from,
           times: this.props.times,
           direction: this.props.direction
         };
-	},
+	}
 
-
- 	render: function() {
+ 	render() {
 		var me = this;
 
         if (me.state.times == null){
@@ -77,13 +67,13 @@ var Time = React.createClass({
                 </div>
                 <hr />
                 <br />
-                <ListGroup vertical block className="time-list">
+                <ListGroup className="time-list">
                   {listTimes}
                 </ListGroup>
                 </div>
               );
         }
  	}
-});
+}
 
-module.exports = Time;
+export default Time;

@@ -1,18 +1,13 @@
-var React = require('react');
-var Button = require('react-bootstrap/lib/Button');
-var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
-var Col = require('react-bootstrap/lib/Col');
-var Grid = require('react-bootstrap/lib/Grid');
-var PageHeader = require('react-bootstrap/lib/PageHeader');
-var Row = require('react-bootstrap/lib/Row');
-var Time = require('./Time');
-var axios = require('axios');
+import React from 'react';
+import { Button, ButtonGroup, Col, Grid, PageHeader, Row } from 'react-bootstrap';
+import axios from 'axios';
+import Time from './Time';
 
-var Station = React.createClass({
+class Station extends React.Component {
  	// sets initial state
-	getInitialState: function(){
-		return {
-          stations: this.props.stations,
+    constructor(props) {
+        super(props);
+        this.initState = {stations: this.props.stations,
           isDestination: false,
           to: "",
           from: "",
@@ -20,9 +15,10 @@ var Station = React.createClass({
           direction: "",
           pageText: "Departing Station"
         };
-	},
+        this.state = this.initState;
+	}
 
-	getConnectingStations: function(station){
+	getConnectingStations(station){
         if(this.state.isDestination == false){
           // sort the station names
           var conn = station.connections.sort(function(a, b) {
@@ -38,10 +34,10 @@ var Station = React.createClass({
         } else {
           this.setState({to: station.name});
         }
-	},
+	}
 
 
-    getNextTimes: function(to, from){
+    getNextTimes(to, from){
 	  to = encodeURIComponent(to);
 	  from = encodeURIComponent(from);
 	  axios.get('/times?to=' + to + '&from=' + from)
@@ -54,25 +50,25 @@ var Station = React.createClass({
 		//  });
         this.setState({times:res.data});
       });
-    },
+    }
 
     componentWillReceiveProps(nextProps){
       if(nextProps.reset){
-          this.setState(this.getInitialState());
+          this.setState(this.initState);
       }
       this.setState({stations:nextProps.stations});
       this.forceUpdate();
-    },
+    }
 
-    shouldComponentUpdate: function(nextProps, nextState){
+    shouldComponentUpdate(nextProps, nextState){
       if(this.state.times == ""){
         return true;
       } else{
         return false;
       }
-    },
+    }
 
- 	render: function() {
+ 	render() {
 		var me = this;
         if(me.state.to != "" && me.state.from != ""){
             // we have our to & from  stations,
@@ -80,10 +76,12 @@ var Station = React.createClass({
             me.getNextTimes(me.state.to, me.state.from);
 
             if(me.state.times != ""){
-              return (<Time to={me.state.to}
-                        from={me.state.from}
-                        times={me.state.times}
-                        direction={me.state.direction} /> );
+              return (
+                <Time to={me.state.to}
+                from={me.state.from}
+                times={me.state.times}
+                direction={me.state.direction} />
+                );
             } else {
               return (<div className="loading"></div>);
             }
@@ -114,9 +112,7 @@ var Station = React.createClass({
       );
 
       }
-
-
  	}
-});
+}
 
-module.exports = Station;
+export default Station;

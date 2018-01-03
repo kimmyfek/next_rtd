@@ -1,24 +1,22 @@
-var Button = require('react-bootstrap/lib/Button');
-var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
-var Col = require('react-bootstrap/lib/Col');
-var Grid = require('react-bootstrap/lib/Grid');
-var PageHeader = require('react-bootstrap/lib/PageHeader');
-var Row = require('react-bootstrap/lib/Row');
-var Station = require('./Station');
-var axios = require ('axios');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button, ButtonGroup, Col, Grid, PageHeader, Row } from 'react-bootstrap';
+import axios from 'axios';
+import Station from './Station';
 
-var App = React.createClass({
-	getInitialState: function(){
-		return {
-          to: "",
+class App extends React.Component {
+	constructor(props) {
+        super(props);
+        this.initState = {to: "",
           from: "",
           stations: [],
           reset: false
         };
-	},
+        this.state = this.initState;
+    }
 
-    startOver: function(me){
-      me.setState(this.getInitialState());
+    startOver(me){
+      me.setState(this.initState);
       //this.setState({reset:true}, () => {
       //  this.forceUpdate();
       //  });
@@ -32,9 +30,9 @@ var App = React.createClass({
         });
 		this.setState({stations:stationSorted});
       });
-    },
+    }
 
-    componentDidMount: function(){
+    componentDidMount(){
       axios.get('/stations')
       .then(res => {
         var stationSorted = res.data.sort(function(a, b) {
@@ -45,9 +43,9 @@ var App = React.createClass({
 		this.setState({stations:stationSorted});
       });
       this.setState({reset:false});
-    },
+    }
 
-	render: function(){
+	render(){
 	  return (
 		<div>
 		  <div className="header">
@@ -65,10 +63,8 @@ var App = React.createClass({
 	  );
 	}
 
-});
-
+}
 
 ReactDOM.render( <App />,
   document.getElementById('main')
 );
-

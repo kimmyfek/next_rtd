@@ -3,8 +3,10 @@
 var deps = require('./dependencies');
 
 var gulp = require('gulp'),
-    browserify = require('gulp-browserify'),
+    browserify = require('browserify'),
+	babelify = require('babelify'),
     buffer = require('gulp-buffer'),
+	source = require('vinyl-source-stream'),
     bust = require('gulp-buster'),
     clean = require('gulp-clean'),
     changed = require('gulp-changed'),
@@ -12,6 +14,32 @@ var gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     size = require('gulp-size'),
     concatCss = require('gulp-concat-css');
+
+// Input file.
+var bundler = browserify('src/jsx/app.jsx', {
+    extensions: ['.js', '.jsx'],
+    debug: true
+});
+
+// Babel transform
+bundler.transform(babelify.configure({
+    sourceMapRelative: 'src',
+    presets: ["es2015", "react"]
+}));
+
+// On updates recompile
+bundler.on('update', bundle);
+
+function bundle() {
+    return bundler.bundle()
+        .on('error', function (err) {
+            console.log("=====");
+            console.error(err.toString());
+            console.log("=====");
+            this.emit("end");
+        })
+    ;
+}
 
 
 gulp.task('concatCss', function () {
@@ -21,14 +49,13 @@ gulp.task('concatCss', function () {
 });
 
 gulp.task('transformMain', function() {
-  return gulp.src('./next/static/scripts/jsx/*.js')
-    .pipe(changed('./next/static/scripts/js'))
-    .pipe(browserify({transform: ['reactify']}))
-    .pipe(gulp.dest('./next/static/scripts/js'))
-    .pipe(buffer())
-    .pipe(bust())
-    .pipe(gulp.dest('./next/static/scripts/js'))
-    .pipe(size());
+    return browserify({entries: './next/static/scripts/jsx/app.js', extensions: ['.js'], debug: true})
+        .transform(babelify.configure({
+			presets: ["env", "react"]
+		 }))
+        .bundle()
+        .pipe(source('./app.js'))
+        .pipe(gulp.dest('./next/static/scripts/js'));
 });
 
 gulp.task('clean', function() {
@@ -36,7 +63,6 @@ gulp.task('clean', function() {
 });
 
 gulp.task('default', ['clean'], function() {
-  gulp.start('copy');
   gulp.start('concat');
   gulp.start('transformMain');
   gulp.start('eslint');
@@ -58,11 +84,6 @@ gulp.task('csslint', function() {
     .pipe(csslint.formatter('fail'));
 });
 
-gulp.task('copy', function() {
-  //  gulp.src(deps.fonts)
-  //    .pipe(gulp.dest('static/fonts'));
-});
-
 gulp.task('concat', function() {
   var concat = require('gulp-concat');
 
@@ -71,10 +92,4 @@ gulp.task('concat', function() {
     .pipe(gulp.dest('./next/static/scripts/js'))
     .pipe(bust())
     .pipe(gulp.dest('./next/static/scripts/js'));
-
-  //gulp.src(deps.css)
-  //  .pipe(concat('styles.css'))
-  //  .pipe(gulp.dest('./next/static/css'))
-  //  .pipe(bust())
-  //  .pipe(gulp.dest('./next/static/css'))
 });
