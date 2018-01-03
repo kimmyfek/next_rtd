@@ -9,14 +9,6 @@
   - [X] What dir to get parse files from
 - [X] Have the UI get served from the back-end
 - [X] Combine Stations
-  - [X] Union Station
-  - [X] 38th & Blake Station
-  - [X] 40th & Colorado Station
-  - [X] Central Park Station
-  - [X] Peoria Station
-  - [X] 40th Ave & Airport Blvd-Gateway Park Station
-  - [X] 61st & Pena Station
-  - [X] Westminster?
 - [X] Change "arrival_from" to departure time
 - [X] Fix time showing in wrong TZ on deployed server by changing TZ.
 - [X] Fix bug causing panic. (Bug was caused by extra space coming in from date formatting. Decided to change from `time.Stamp` to `time.RubyDate` which shouldn't add another space, messing up parsing.
@@ -26,6 +18,7 @@
 - [ ] Now is a really bad name for time in db.go (J)
 - [ ] Move rtdtime struct (J) 
 - [ ] Lots and lots of tests Backend (J)
+- [ ] Startup flags should be pointing to prod dirs (J)
 - [ ] Lots and lots of tests Frontend (K)
 - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
 - [ ] DNS (K)
