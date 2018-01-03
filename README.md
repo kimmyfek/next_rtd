@@ -20,6 +20,7 @@
 - [X] Change "arrival_from" to departure time
 - [X] Fix time showing in wrong TZ on deployed server by changing TZ.
 - [X] Fix bug causing panic. (Bug was caused by extra space coming in from date formatting. Decided to change from `time.Stamp` to `time.RubyDate` which shouldn't add another space, messing up parsing.
+- [X] Cache Station Data
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
 - [ ] Fuckin' interfaces -- Need 'em (J)
 - [ ] Now is a really bad name for time in db.go (J)
@@ -52,6 +53,7 @@
 - [ ] Automatically notate if we send null data for times (J)
 - [ ] Theatre district as convention center (Make it a map?)
 - [ ] HTTP Server (J / K)
+- [ ] Refresh cache on reload (J)
 
 ## Parsing
 - [X] Parse the data
