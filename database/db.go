@@ -570,7 +570,8 @@ func parseStationTimeRows(rows *sql.Rows) []m.Time {
 // Due to a day by RTD standards going up to a maximum of 27 o'clock, if today
 // is still before 5 AM, the clock gets rolled back to yesterday.
 func (al *AccessLayer) getServiceIDFromDay(delta time.Duration) string {
-	now := time.Now().Add(delta)
+	l, _ := time.LoadLocation("MST")
+	now := time.Now().In(l).Add(delta)
 	if now.Hour() <= 4 {
 		now = now.Add(-5 * time.Hour)
 	}

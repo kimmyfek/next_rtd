@@ -188,6 +188,7 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 		"61st & Pena Station",
 		"Central Park Station",
 		"Peoria Station",
+		"Theatre District",
 		"Westminster Station",
 	}
 
