@@ -31,7 +31,14 @@
 - [ ] Automatically notate if we send null data for times (J)
 - [ ] Theatre district as convention center (Make it a map?) (J)
 - Performance Optimizations
-  - [ ] MySQL? (J / K)
+  - MySQL? (J)
+    - [ ] Run DB script
+    - [ ] Build ConnString on CLI / ENV
+    - [ ] Password secret on CLI / ENV for service
+    - [ ] Password secret for Docker run
+    - [ ] Replace sqlite with mysql in db.go
+    - [ ] Validate queries are working appropriately
+    - [ ] Move indexes to outside of check db.
   - [ ] HTTP Server like Apache (J / K)
 - Parser Improvements
   - [ ] Refresh cache on reload (J)
