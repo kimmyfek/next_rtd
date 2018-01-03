@@ -15,7 +15,7 @@
 - [X] Cache Station Data
 - [X] Indexes (J)
 - [X] Explain Query ? (J / K)
-- [ ] Startup flags should be pointing to prod dirs (J)
+- [X] Startup flags should be pointing to prod dirs (J)
 - [ ] DNS (K)
 - [ ] Build script needs to work (J)
 - [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
