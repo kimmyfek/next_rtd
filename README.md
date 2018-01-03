@@ -51,6 +51,7 @@
 - [ ] Validate data (J / K)
 - [ ] Automatically notate if we send null data for times (J)
 - [ ] Theatre district as convention center (Make it a map?)
+- [ ] HTTP Server (J / K)
 
 ## Parsing
 - [X] Parse the data
