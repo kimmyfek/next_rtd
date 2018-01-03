@@ -57,7 +57,7 @@
 
 ## UI Cleanup
 - [ ] Clean up frontend code (K)
-- [ ] New react style (K) 
+- [X] New react style (K) 
 - [ ] Lots and lots of tests Frontend (K)
 
 ## Proper API Handling
