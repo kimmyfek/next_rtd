@@ -50,14 +50,14 @@ class Time extends React.Component {
 
                 return (
                   <h4 key={time.departure_time + time.route}>
-                  <Well>
+                  <ListGroupItem bsStyle="success">
                     <span className="next-train">
                     {time.route}
                     </span>
                     <span className="next-time">
                     {d_hr.toString() + ":" + d_min.toString() + " " + am_pm}
                     </span>
-                  </Well></h4>
+                  </ListGroupItem></h4>
                   );
               });
               return (
@@ -68,6 +68,12 @@ class Time extends React.Component {
                 <hr />
                 <br />
                 <ListGroup className="time-list">
+                  <span className="next-train">
+                  {"Route"}
+                  </span>
+                  <span className="next-time">
+                  {"Arriving Time"}
+                  </span>
                   {listTimes}
                 </ListGroup>
                 </div>
