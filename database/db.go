@@ -9,8 +9,8 @@ import (
 
 	"gopkg.in/fatih/set.v0"
 
+	_ "github.com/go-sql-driver/mysql" // SQL doesn't need a name
 	m "github.com/kimmyfek/next_rtd/models"
-	_ "github.com/mattn/go-sqlite3" // SQL doesn't need a name
 )
 
 const (
@@ -45,9 +45,8 @@ func NewAccessLayer(filename string) *AccessLayer {
 }
 
 // Open begins the connection with the db
-// TODO put indexes on these tables
 func (al *AccessLayer) Open() error {
-	db, err := sql.Open("sqlite3", al.Filename)
+	db, err := sql.Open("mysql", "root@/rtd")
 	if err != nil {
 		return err
 	}
@@ -57,10 +56,10 @@ func (al *AccessLayer) Open() error {
 		// TODO rename table columns to not have table name in it
 		_, err := al.AL.Exec(fmt.Sprintf(`
 			CREATE TABLE %s(
-				route_id 		 INT NOT NULL PRIMARY KEY,
-				route_short_name STRING NOT NULL,
-				route_long_name  STRING NOT NULL,
-				route_desc		 STRING NOT NULL
+				route_id 		 VARCHAR(10) NOT NULL PRIMARY KEY,
+				route_short_name VARCHAR(5) NOT NULL,
+				route_long_name  VARCHAR(255) NOT NULL,
+				route_desc		 VARCHAR(255) NOT NULL
 			)
 		`, routesTable))
 
@@ -69,22 +68,15 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created routes table")
-
-		_, err = al.AL.Exec("CREATE UNIQUE INDEX idx_route_id ON routes(route_id)")
-		if err != nil {
-			fmt.Printf("Error creating %s index", routesTable)
-			return err
-		}
-		fmt.Println("Created routes index")
 	}
 
 	if !al.tableExists(stopsTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
 			CREATE TABLE %s(
-				stop_id 	    INT NOT NULL,
+				stop_id 	    INT NOT NULL PRIMARY KEY,
 				stop_code		INT NOT NULL,
-				stop_name		STRING NOT NULL,
-				stop_desc		STRING NOT NULL
+				stop_name		VARCHAR(55) NOT NULL,
+				stop_desc		VARCHAR(55) NOT NULL
 			)
 		`, stopsTable))
 
@@ -93,21 +85,22 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created stops table")
+	}
 
-		_, err = al.AL.Exec("CREATE UNIQUE INDEX idx_stop_id ON stops(stop_id)")
+	if !al.indexExists(stopsTable, "idx_stop_name") {
 		_, err = al.AL.Exec("CREATE INDEX idx_stop_name ON stops(stop_name)")
 		if err != nil {
 			fmt.Printf("Error creating %s index", stopsTable)
 			return err
 		}
-		fmt.Println("Created stops index")
+		fmt.Println("Created idx_stop_name index")
 	}
 	if !al.tableExists(stopTimesTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
 			CREATE TABLE %s(
 				trip_id			INT NOT NULL,
-				arrival_time	STRING NOT NULL,
-				departure_time	STRING NOT NULL,
+				arrival_time	VARCHAR(9) NOT NULL,
+				departure_time	VARCHAR(9) NOT NULL,
 				stop_id			INT NOT NULL
 			)
 		`, stopTimesTable))
@@ -117,19 +110,31 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created stop times table")
+	}
 
+	if !al.indexExists(stopTimesTable, "idx_trip_id") {
+		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON stop_times(trip_id)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", stopTimesTable)
+			return err
+		}
+		fmt.Println("Created idx_trip_id index on StopTimesTable")
+	}
+
+	if !al.indexExists(stopTimesTable, "idx_arrival_time") {
 		_, err = al.AL.Exec("CREATE INDEX idx_arrival_time ON stop_times(arrival_time)")
 		if err != nil {
 			fmt.Printf("Error creating %s index", stopTimesTable)
 			return err
 		}
-		fmt.Println("Created stop times index")
+		fmt.Println("Created idx_arrival_time index")
 	}
+
 	if !al.tableExists(tripsTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
 			CREATE TABLE %s(
-				route_id 	 INT NOT NULL,
-				service_id	 INT NOT NULL,
+				route_id 	 VARCHAR(10) NOT NULL,
+				service_id	 VARCHAR(15) NOT NULL,
 				trip_id		 INT NOT NULL,
 				direction_id INT NOT NULL
 			)
@@ -140,28 +145,39 @@ func (al *AccessLayer) Open() error {
 			return err
 		}
 		fmt.Println("Created trips table")
+	}
 
+	if !al.indexExists(tripsTable, "idx_trip_id") {
 		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON trips(trip_id)")
+		if err != nil {
+			fmt.Printf("Error creating %s index", tripsTable)
+			return err
+		}
+		fmt.Println("Created idx_trip_id index")
+	}
+
+	if !al.indexExists(tripsTable, "idx_service_id") {
 		_, err = al.AL.Exec("CREATE INDEX idx_service_id ON trips(service_id)")
 		if err != nil {
 			fmt.Printf("Error creating %s index", tripsTable)
 			return err
 		}
-		fmt.Println("Created trips index")
+		fmt.Println("Created idx_service_id index")
 	}
+
 	if !al.tableExists(calendarTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
             CREATE TABLE %s(
-                service_id STRING NOT NULL,
-                monday     STRING NOT NULL,
-                tuesday    STRING NOT NULL,
-                wednesday  STRING NOT NULL,
-                thursday   STRING NOT NULL,
-                friday     STRING NOT NULL,
-                saturday   STRING NOT NULL,
-                sunday     STRING NOT NULL,
-                start_date STRING NOT NULL,
-                end_date   STRING NOT NULL
+                service_id VARCHAR(15) NOT NULL,
+                monday     VARCHAR(15) NOT NULL,
+                tuesday    VARCHAR(15) NOT NULL,
+                wednesday  VARCHAR(15) NOT NULL,
+                thursday   VARCHAR(15) NOT NULL,
+                friday     VARCHAR(15) NOT NULL,
+                saturday   VARCHAR(15) NOT NULL,
+                sunday     VARCHAR(15) NOT NULL,
+                start_date VARCHAR(10) NOT NULL,
+                end_date   VARCHAR(10) NOT NULL
             )
         `, calendarTable))
 
@@ -177,17 +193,27 @@ func (al *AccessLayer) Open() error {
 
 func (al *AccessLayer) tableExists(name string) bool {
 	var n string
-	err := al.AL.QueryRow("SELECT name FROM sqlite_master WHERE name = ?", name).Scan(&n)
+	err := al.AL.QueryRow(`
+		SELECT TABLE_NAME
+		FROM information_schema.tables
+		WHERE table_schema = 'rtd'
+		  AND table_name = ?
+		LIMIT 1`, name).Scan(&n)
 	if err == nil && n == name {
 		return true
 	}
 	return false
 }
 
-func (al *AccessLayer) indexExists(name string) bool {
-	var n string
-	err := al.AL.QueryRow("SELECT name FROM sqlite_master WHERE name = ?", name).Scan(&n)
-	if err == nil && n == name {
+func (al *AccessLayer) indexExists(table, index string) bool {
+	var i string
+	err := al.AL.QueryRow(`
+	SELECT DISTINCT INDEX_NAME
+	FROM INFORMATION_SCHEMA.STATISTICS
+	WHERE TABLE_SCHEMA = 'rtd'
+		AND TABLE_NAME = ?
+		AND INDEX_NAME = ?`, table, index).Scan(&i)
+	if err == nil && i == index {
 		return true
 	}
 	return false
@@ -229,7 +255,6 @@ func (al *AccessLayer) SaveRoutes(table string, data map[string]m.Route) error {
 			val.RouteDesc,
 		))
 	}
-
 	rowsAffected, err := al.exec(stmt, values)
 	if err != nil {
 		return err
@@ -431,7 +456,11 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 			ON r.route_id = t.route_id
 		INNER JOIN (
 			SELECT DISTINCT
-				s.stop_name, r.route_short_name, r.route_id
+				s.stop_name,
+				r.route_short_name,
+				r.route_id,
+				st.arrival_time,
+				t.trip_id
 			FROM stops s
 			INNER JOIN stop_times st
 				ON st.stop_id = s.stop_id
@@ -440,8 +469,10 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 			INNER JOIN routes r
 				ON r.route_id = t.route_id
 		) s2
-			ON r.route_id = s2.route_id
-			AND s.stop_name != s2.stop_name
+		ON r.route_id = s2.route_id
+		  AND s.stop_name != s2.stop_name
+		  AND t.trip_id = s2.trip_id
+		  AND st.arrival_time < s2.arrival_time
 	`
 
 	rows, err := al.AL.Query(query)
@@ -537,8 +568,17 @@ func newRTDTime(t string) *rtdTime {
 	return &rtdTime{h: c[0], m: c[1], s: c[2]}
 }
 
-func (r *rtdTime) toString() string {
-	return fmt.Sprintf("%s:%s:%s", r.h, r.m, r.s)
+func (r *rtdTime) toStringNextDay() string {
+	intH, _ := strconv.Atoi(r.h)
+	var h, m string
+	if intH <= 23 {
+		h = "00"
+		m = "00"
+	} else {
+		h = r.h
+		m = r.m
+	}
+	return fmt.Sprintf("%s:%s:%s", h, m, r.s)
 }
 
 func (r *rtdTime) toStringRTDTime() string {
@@ -577,12 +617,16 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 
 	if len(times) < numTimes {
 		day = al.getServiceIDFromDay(24 * time.Hour)
-		rows, err := al.getStationTimes(from, to, t.toString(), day, numTimes-len(times))
+		rows, err := al.getStationTimes(from, to, t.toStringNextDay(), day, numTimes-len(times))
 		if err != nil {
 			return nil, err
 		}
 		times = append(times, parseStationTimeRows(rows)...)
 
+	}
+
+	if len(times) < numTimes {
+		fmt.Println(fmt.Sprintf("%d times requested, only %d provided", numTimes, len(times)))
 	}
 	return times, nil
 }
