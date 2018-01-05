@@ -30,6 +30,7 @@
 - [ ] Validate data (J / K)
 - [ ] Automatically notate if we send null data for times (J)
 - [ ] Theatre district as convention center (Make it a map?) (J)
+- [ ] Metrics for users
 - Performance Optimizations
   - MySQL? (J)
     - [ ] Run DB script
@@ -57,7 +58,7 @@
 
 ## UI Cleanup
 - [ ] Clean up frontend code (K)
-- [ ] New react style (K) 
+- [X] New react style (K) 
 - [ ] Lots and lots of tests Frontend (K)
 
 ## Proper API Handling
