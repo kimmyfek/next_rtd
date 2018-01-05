@@ -1,7 +1,7 @@
 .stations {
-  -webkit-column-count: 2;
-     -moz-column-count: 2;
-          column-count: 2;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
 }
 
 .station {
