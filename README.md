@@ -33,6 +33,7 @@
 - [ ] Ad? (J / K)
 - [ ] SEO (J / K)
 - [ ] Validate data (J / K)
+- [ ] HTTP Server like Apache (J / K) ** BIG PRIORITY / REPUTATION **
 - Performance Optimizations
   - MySQL? (J)
     - [x] Run DB script
@@ -43,7 +44,6 @@
     - [ ] Password secret on CLI / ENV for service
     - [ ] Password secret for Docker run
 	- [ ] Explain query
-  - [ ] HTTP Server like Apache (J / K)
 - Parser Improvements
   - [ ] Refresh cache on reload (J)
   - [ ] Parser writes to temp table and replaces instead (J)
