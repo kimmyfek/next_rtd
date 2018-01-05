@@ -16,30 +16,33 @@
 - [X] Indexes (J)
 - [X] Explain Query ? (J / K)
 - [X] Startup flags should be pointing to prod dirs (J)
-- [ ] DNS (K)
+- [x] Automatically notate if we send null data for times (J)
+- [X] Not changing time when querying for the next day
+- [X] DNS (K)
+- [x] Only show connection stations of that direction (J)
 - [ ] Build script needs to work (J)
-- [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Logging > printlns (J)
+- [ ] Theatre district as convention center (Make it a map?) (J)
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
-- [ ] Contact us / Feedback / About (K)
-- [ ] Ad? (J / K)
 - [ ] Word light rail (K)
-- [ ] SEO (J / K)
 - [ ] Show arrival time to the _TO_ station (K)
+- [ ] Contact us / Feedback / About (K)
+- [ ] Queries hitting the backend twice (K)
+- [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
+- [ ] Ad? (J / K)
+- [ ] SEO (J / K)
 - [ ] Validate data (J / K)
-- [ ] Automatically notate if we send null data for times (J)
-- [ ] Theatre district as convention center (Make it a map?) (J)
-- [ ] Metrics for users
 - Performance Optimizations
   - MySQL? (J)
-    - [ ] Run DB script
+    - [x] Run DB script
+    - [x] Replace sqlite with mysql in db.go
+    - [x] Validate queries are working appropriately
+    - [x] Move indexes to outside of check db.
     - [ ] Build ConnString on CLI / ENV
     - [ ] Password secret on CLI / ENV for service
     - [ ] Password secret for Docker run
-    - [ ] Replace sqlite with mysql in db.go
-    - [ ] Validate queries are working appropriately
-    - [ ] Move indexes to outside of check db.
+	- [ ] Explain query
   - [ ] HTTP Server like Apache (J / K)
 - Parser Improvements
   - [ ] Refresh cache on reload (J)
@@ -51,14 +54,15 @@
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
 - [ ] Fuckin' interfaces -- Need 'em (J)
 - [ ] Now is a really bad name for time in db.go (J)
-- [ ] Move rtdtime struct (J) 
+- [ ] Move rtdtime struct (J)
 - [ ] Lots and lots of tests Backend (J)
 - [ ] Clean up parser (J)
 - [ ] Metrics (J)
+- [ ] DB area is a mess of constants and functions that could likely be broken into funcs
 
 ## UI Cleanup
 - [ ] Clean up frontend code (K)
-- [X] New react style (K) 
+- [X] New react style (K)
 - [ ] Lots and lots of tests Frontend (K)
 
 ## Proper API Handling
