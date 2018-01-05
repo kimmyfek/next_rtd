@@ -30,7 +30,7 @@ class Station extends React.Component {
           this.setState({stations: station.connections});
           this.setState({isDestination: true});
           this.setState({from: station.name});
-          this.setState({pageText: "Arriving Station"});
+          this.setState({pageText: "Where Are You Going?"});
         } else {
           this.setState({to: station.name});
         }
@@ -42,12 +42,6 @@ class Station extends React.Component {
 	  from = encodeURIComponent(from);
 	  axios.get('/times?to=' + to + '&from=' + from)
       .then(res => {
-        // times should already be sorted; commenting out
-        //  var times= res.data.sort(function(a, b) {
-		//	  var textA = a.arrival_time;
-		//	  var textB = b.arrival_time;
-		//	  return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-		//  });
         this.setState({times:res.data});
       });
     }
@@ -101,9 +95,16 @@ class Station extends React.Component {
             </div>
 			  );
 		  });
+
+      if(me.state.from != ""){
+          var fromDisplay = "from: " + me.state.from;
+      } else {
+          var fromDisplay = "";
+      }
       return (
         <div>
           <h3>{me.state.pageText}</h3>
+          <h5><i>{fromDisplay}</i></h5>
         <br />
         <ButtonGroup vertical block className="stations">
           {listStations}
