@@ -20,16 +20,14 @@ import (
 // RestHandler allows dependency injection for REST calls
 type RestHandler struct {
 	DB       *database.AccessLayer
-	Port     int
 	stations []models.Station
 	Logger   *log.Entry
 }
 
 // NewRestHandler returns a new instance of the RestHandler obj
-func NewRestHandler(db *database.AccessLayer, port int, logger *log.Entry) *RestHandler {
+func NewRestHandler(db *database.AccessLayer, logger *log.Entry) *RestHandler {
 	return &RestHandler{
 		DB:     db,
-		Port:   port,
 		Logger: logger,
 	}
 }
@@ -51,8 +49,6 @@ func (rh *RestHandler) Init() {
 	} else {
 		rh.stations = st
 	}
-
-	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)
 }
 
 func (rh *RestHandler) handleFuncWrapper(pattern string, handler func(http.ResponseWriter, *http.Request)) {
@@ -61,24 +57,52 @@ func (rh *RestHandler) handleFuncWrapper(pattern string, handler func(http.Respo
 	http.Handle(pattern, h)
 }
 
+type metricsWriter struct {
+	http.ResponseWriter
+	code int
+}
+
+// newMetricsWriter returns a new wrapped metrics responsewriter
+func newMetricsWriter(w http.ResponseWriter) *metricsWriter {
+	return &metricsWriter{ResponseWriter: w}
+}
+
+func (m metricsWriter) WriteHeader(code int) {
+	m.code = code
+	m.ResponseWriter.WriteHeader(code)
+}
+
+func (m metricsWriter) getCode() int {
+	if m.code == 0 {
+		return 200
+	}
+	return m.code
+}
+
 // loggedHandler wraps handlers to log details about each request
 func (rh *RestHandler) loggedHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s := time.Now()
 		uid := uuid.NewV4()
 		logger := rh.Logger.WithFields(log.Fields{
 			"context": uid,
 			"URI":     r.RequestURI,
 		})
+
+		mw := newMetricsWriter(w)
+
 		logger.Debug("Incoming request")
-		s := time.Now()
-		h.ServeHTTP(w, r)
-		logger.Debugf("Request duration: %s", time.Now().Sub(s))
+		h.ServeHTTP(mw, r)
+		logger.WithFields(log.Fields{
+			"StatusCode": mw.getCode(),
+		}).Debugf("Request duration: %s", time.Now().Sub(s))
 	})
 }
 
 // metricsHandler wraps handlers to store metrics for each request
 func (rh *RestHandler) metricsHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO
 		h.ServeHTTP(w, r)
 	})
 }

@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
 
 	log "github.com/sirupsen/logrus"
 
@@ -14,6 +17,7 @@ import (
 var parse = flag.Bool("parse", false, "If provided will parse data and add to DB. Default: Disabled")
 var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt files are located. NOT NEEDED IF PARSE=false")
 var level = flag.String("level", "info", "Log level. Valid options: 'Info', 'Debug'")
+var port = flag.Int("port", 3000, "Port to host service on")
 
 func main() {
 	flag.Parse()
@@ -39,6 +43,7 @@ func main() {
 		if err := al.Close(); err != nil {
 			logger.Error(fmt.Sprintf("Error shutting down database connection: %s", err))
 		}
+		logger.Info("DB Connection closed!")
 	}()
 
 	if *parse {
@@ -50,6 +55,19 @@ func main() {
 	}
 
 	logger.Warning("Application Init complete. Running...")
-	rh := web.NewRestHandler(al, 3000, logger)
+	rh := web.NewRestHandler(al, logger)
 	rh.Init()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	go func() {
+		logger.Infof("Listening on %d", *port)
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
+			logger.Fatalf("Error serving HTTP: %s", err)
+		}
+	}()
+
+	<-stop
+	logger.Warning("Shutting down server!")
 }

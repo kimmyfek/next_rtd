@@ -20,9 +20,10 @@
 - [X] Not changing time when querying for the next day
 - [X] DNS (K)
 - [x] Only show connection stations of that direction (J)
-- [ ] Build script needs to work (J)
 - [x] Logging > printlns (J)
-- [ ] Graceful shutdown (J)
+- [x] Log status of each request (J)
+- [x] Graceful shutdown (J)
+- [ ] Build script needs to work (J)
 - [ ] Theatre district as convention center (Make it a map?) (J)
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
