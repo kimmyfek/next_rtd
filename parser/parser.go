@@ -180,16 +180,16 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 	stops := make(map[string]m.Stop)
 	r := csv.NewReader(f)
 
-	shortNames := []string{
-		"Union Station",
-		"38th & Blake Station",
-		"40th & Colorado Station",
-		"40th Ave & Airport Blvd - Gateway Park Station",
-		"61st & Pena Station",
-		"Central Park Station",
-		"Peoria Station",
-		"Theatre District",
-		"Westminster Station",
+	shortNames := map[string]string{
+		"Union Station":                                  "Union Station",
+		"38th & Blake Station":                           "38th & Blake Station",
+		"40th & Colorado Station":                        "40th & Colorado Station",
+		"40th Ave & Airport Blvd - Gateway Park Station": "40th Ave & Airport Blvd - Gateway Park Station",
+		"61st & Pena Station":                            "61st & Pena Station",
+		"Central Park Station":                           "Central Park Station",
+		"Peoria Station":                                 "Peoria Station",
+		"Theatre District":                               "Theatre District / Convention Center",
+		"Westminster Station":                            "Westminster Station",
 	}
 
 	for {
@@ -201,8 +201,8 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 			}
 		} else {
 			stopName := stop[2]
-			for _, short := range shortNames {
-				if strings.Contains(stopName, short) {
+			for test, short := range shortNames {
+				if strings.Contains(stopName, test) {
 					stopName = short
 					break
 				}

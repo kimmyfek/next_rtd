@@ -54,7 +54,7 @@ func main() {
 		parser.ParseData(al, *sourceDir)
 	}
 
-	logger.Warning("Application Init complete. Running...")
+	logger.Info("Init endpoints")
 	rh := web.NewRestHandler(al, logger)
 	rh.Init()
 
