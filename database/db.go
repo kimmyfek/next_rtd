@@ -34,14 +34,13 @@ var serviceIDMap = map[string]string{
 
 // AccessLayer is the object meant to be used to access the DB
 type AccessLayer struct {
-	Filename string
-	AL       *sql.DB
+	AL *sql.DB
 }
 
 // NewAccessLayer is the function provided to instantiate a new instance of the
 // AccessLayer object and connect to the DB.
-func NewAccessLayer(filename string) *AccessLayer {
-	return &AccessLayer{Filename: filename}
+func NewAccessLayer() *AccessLayer {
+	return &AccessLayer{}
 }
 
 // Open begins the connection with the db
@@ -189,6 +188,11 @@ func (al *AccessLayer) Open() error {
 
 	}
 	return nil
+}
+
+// Close executes the close functionality against the DB.
+func (al *AccessLayer) Close() error {
+	return al.AL.Close()
 }
 
 func (al *AccessLayer) tableExists(name string) bool {

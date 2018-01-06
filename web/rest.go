@@ -10,26 +10,27 @@ import (
 	"strings"
 	"time"
 
+	"github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/kimmyfek/next_rtd/database"
 	"github.com/kimmyfek/next_rtd/models"
 )
-
-func main() {
-	fmt.Println("vim-go")
-}
 
 // RestHandler allows dependency injection for REST calls
 type RestHandler struct {
 	DB       *database.AccessLayer
 	Port     int
 	stations []models.Station
+	Logger   *log.Entry
 }
 
 // NewRestHandler returns a new instance of the RestHandler obj
-func NewRestHandler(db *database.AccessLayer, port int) *RestHandler {
+func NewRestHandler(db *database.AccessLayer, port int, logger *log.Entry) *RestHandler {
 	return &RestHandler{
-		DB:   db,
-		Port: port,
+		DB:     db,
+		Port:   port,
+		Logger: logger,
 	}
 }
 
@@ -40,14 +41,46 @@ func (rh *RestHandler) Init() {
 		panic(err)
 	}
 	http.Handle("/", http.FileServer(http.Dir(fmt.Sprintf("%s/next", dir))))
-	http.HandleFunc("/stations", rh.GetStations)
-	http.HandleFunc("/times", rh.GetTimes)
-	st, err := rh.DB.GetStationsAndConnections()
-	if err != nil {
+
+	rh.handleFuncWrapper("/stations", rh.GetStations)
+	rh.handleFuncWrapper("/times", rh.GetTimes)
+
+	// Cache stations -- This should be something we can reset
+	if st, err := rh.DB.GetStationsAndConnections(); err != nil {
 		panic(err)
+	} else {
+		rh.stations = st
 	}
-	rh.stations = st
+
 	http.ListenAndServe(fmt.Sprintf(":%d", rh.Port), nil)
+}
+
+func (rh *RestHandler) handleFuncWrapper(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	h := rh.loggedHandler(http.HandlerFunc(handler))
+	h = rh.metricsHandler(h)
+	http.Handle(pattern, h)
+}
+
+// loggedHandler wraps handlers to log details about each request
+func (rh *RestHandler) loggedHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		uid := uuid.NewV4()
+		logger := rh.Logger.WithFields(log.Fields{
+			"context": uid,
+			"URI":     r.RequestURI,
+		})
+		logger.Debug("Incoming request")
+		s := time.Now()
+		h.ServeHTTP(w, r)
+		logger.Debugf("Request duration: %s", time.Now().Sub(s))
+	})
+}
+
+// metricsHandler wraps handlers to store metrics for each request
+func (rh *RestHandler) metricsHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+	})
 }
 
 // GetStations queries the DB for a list of all stations and then returns them

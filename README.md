@@ -34,6 +34,7 @@
 - [ ] SEO (J / K)
 - [ ] Validate data (J / K)
 - [ ] HTTP Server like Apache (J / K) ** BIG PRIORITY / REPUTATION **
+- [ ] Rename everything to rtdgo.co
 - Performance Optimizations
   - MySQL? (J)
     - [x] Run DB script
