@@ -1,7 +1,7 @@
 node_modules/*
 parser/parser
 .DS_Store
-#next_rtd
-# nxt-darwin
+next_rtd
+nxt*
 runboard/*
 package-lock.json

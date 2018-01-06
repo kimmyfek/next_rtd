@@ -24,7 +24,7 @@
 - [x] Log status of each request (J)
 - [x] Graceful shutdown (J)
 - [x] Theatre district stop should display as "Theatre District / Convention Center" (J)
-- [ ] Build script needs to work (J)
+- [ ] Build script needs to work (J) ** TODO BIG ONE **
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
 - [ ] Word light rail (K)
@@ -36,7 +36,7 @@
 - [ ] SEO (J / K)
 - [ ] Validate data (J / K)
 - [ ] HTTP Server like Apache (J / K) ** BIG PRIORITY / REPUTATION **
-- [ ] Rename everything to rtdgo.co
+- [ ] Rename everything to rtdgo.co (J / K)
 - Performance Optimizations
   - MySQL? (J)
     - [x] Run DB script
@@ -47,9 +47,10 @@
     - [ ] Password secret on CLI / ENV for service
     - [ ] Password secret for Docker run
 	- [ ] Explain query
-- Parser Improvements
+- Parser Improvements (J)
+  - [ ] Parser writes to temp table and replaces instead (J) ** TODO BIG ONE **
+  - [ ] Update DB live
   - [ ] Refresh cache on reload (J)
-  - [ ] Parser writes to temp table and replaces instead (J)
   - [ ] Re-Pull data and parse after X duration (J)
   - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
 

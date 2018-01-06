@@ -83,7 +83,7 @@ func (m metricsWriter) getCode() int {
 func (rh *RestHandler) loggedHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s := time.Now()
-		uid := uuid.NewV4()
+		uid, _ := uuid.NewV4()
 		logger := rh.Logger.WithFields(log.Fields{
 			"context": uid,
 			"URI":     r.RequestURI,
