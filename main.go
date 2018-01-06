@@ -16,7 +16,9 @@ var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt 
 var level = flag.String("level", "info", "Log level. Valid options: 'Info', 'Debug'")
 
 func main() {
-	l, err := log.ParseLevel(*level)
+	flag.Parse()
+
+	l, err := log.ParseLevel(log.DebugLevel.String())
 	if err != nil {
 		panic("Incorrect logging level")
 	}
@@ -26,14 +28,14 @@ func main() {
 		"app": "rtdGO",
 	})
 	logger.Info("Application Initialization Begin...")
+	logger.Debug("Debug mode enabled")
 
-	flag.Parse()
-
-	al := database.NewAccessLayer()
+	al := database.NewAccessLayer(logger)
 	if err = al.Open(); err != nil {
 		panic(fmt.Sprintf("Unable to create and open database: %s", err))
 	}
 	defer func() {
+		logger.Info("Closing DB connection.")
 		if err := al.Close(); err != nil {
 			logger.Error(fmt.Sprintf("Error shutting down database connection: %s", err))
 		}

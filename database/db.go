@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
 
 	_ "github.com/go-sql-driver/mysql" // SQL doesn't need a name
@@ -34,13 +35,14 @@ var serviceIDMap = map[string]string{
 
 // AccessLayer is the object meant to be used to access the DB
 type AccessLayer struct {
-	AL *sql.DB
+	AL     *sql.DB
+	logger *log.Entry
 }
 
 // NewAccessLayer is the function provided to instantiate a new instance of the
 // AccessLayer object and connect to the DB.
-func NewAccessLayer() *AccessLayer {
-	return &AccessLayer{}
+func NewAccessLayer(logger *log.Entry) *AccessLayer {
+	return &AccessLayer{logger: logger}
 }
 
 // Open begins the connection with the db
@@ -63,10 +65,10 @@ func (al *AccessLayer) Open() error {
 		`, routesTable))
 
 		if err != nil {
-			fmt.Printf("Error creating %s table", routesTable)
+			al.logger.Errorf("Error creating %s table", routesTable)
 			return err
 		}
-		fmt.Println("Created routes table")
+		al.logger.Info("Created routes table")
 	}
 
 	if !al.tableExists(stopsTable) {
@@ -80,19 +82,19 @@ func (al *AccessLayer) Open() error {
 		`, stopsTable))
 
 		if err != nil {
-			fmt.Printf("Error creating %s table", stopsTable)
+			al.logger.Errorf("Error creating %s table", stopsTable)
 			return err
 		}
-		fmt.Println("Created stops table")
+		al.logger.Info("Created stops table")
 	}
 
 	if !al.indexExists(stopsTable, "idx_stop_name") {
 		_, err = al.AL.Exec("CREATE INDEX idx_stop_name ON stops(stop_name)")
 		if err != nil {
-			fmt.Printf("Error creating %s index", stopsTable)
+			al.logger.Errorf("Error creating %s index", stopsTable)
 			return err
 		}
-		fmt.Println("Created idx_stop_name index")
+		al.logger.Info("Created idx_stop_name index")
 	}
 	if !al.tableExists(stopTimesTable) {
 		_, err := al.AL.Exec(fmt.Sprintf(`
@@ -105,28 +107,28 @@ func (al *AccessLayer) Open() error {
 		`, stopTimesTable))
 
 		if err != nil {
-			fmt.Printf("Error creating %s table", stopTimesTable)
+			al.logger.Errorf("Error creating %s table", stopTimesTable)
 			return err
 		}
-		fmt.Println("Created stop times table")
+		al.logger.Info("Created stop times table")
 	}
 
 	if !al.indexExists(stopTimesTable, "idx_trip_id") {
 		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON stop_times(trip_id)")
 		if err != nil {
-			fmt.Printf("Error creating %s index", stopTimesTable)
+			al.logger.Errorf("Error creating %s index", stopTimesTable)
 			return err
 		}
-		fmt.Println("Created idx_trip_id index on StopTimesTable")
+		al.logger.Infof("Created idx_trip_id index on StopTimesTable")
 	}
 
 	if !al.indexExists(stopTimesTable, "idx_arrival_time") {
 		_, err = al.AL.Exec("CREATE INDEX idx_arrival_time ON stop_times(arrival_time)")
 		if err != nil {
-			fmt.Printf("Error creating %s index", stopTimesTable)
+			al.logger.Errorf("Error creating %s index", stopTimesTable)
 			return err
 		}
-		fmt.Println("Created idx_arrival_time index")
+		al.logger.Info("Created idx_arrival_time index")
 	}
 
 	if !al.tableExists(tripsTable) {
@@ -140,28 +142,28 @@ func (al *AccessLayer) Open() error {
 		`, tripsTable))
 
 		if err != nil {
-			fmt.Printf("Error creating %s table", tripsTable)
+			al.logger.Errorf("Error creating %s table", tripsTable)
 			return err
 		}
-		fmt.Println("Created trips table")
+		al.logger.Info("Created trips table")
 	}
 
 	if !al.indexExists(tripsTable, "idx_trip_id") {
 		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON trips(trip_id)")
 		if err != nil {
-			fmt.Printf("Error creating %s index", tripsTable)
+			al.logger.Errorf("Error creating %s index", tripsTable)
 			return err
 		}
-		fmt.Println("Created idx_trip_id index")
+		al.logger.Info("Created idx_trip_id index")
 	}
 
 	if !al.indexExists(tripsTable, "idx_service_id") {
 		_, err = al.AL.Exec("CREATE INDEX idx_service_id ON trips(service_id)")
 		if err != nil {
-			fmt.Printf("Error creating %s index", tripsTable)
+			al.logger.Errorf("Error creating %s index", tripsTable)
 			return err
 		}
-		fmt.Println("Created idx_service_id index")
+		al.logger.Info("Created idx_service_id index")
 	}
 
 	if !al.tableExists(calendarTable) {
@@ -181,10 +183,10 @@ func (al *AccessLayer) Open() error {
         `, calendarTable))
 
 		if err != nil {
-			fmt.Printf("Error creating %s table", calendarTable)
+			al.logger.Errorf("Error creating %s table", calendarTable)
 			return err
 		}
-		fmt.Println("Created calendar table")
+		al.logger.Info("Created calendar table")
 
 	}
 	return nil
@@ -630,7 +632,7 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 	}
 
 	if len(times) < numTimes {
-		fmt.Println(fmt.Sprintf("%d times requested, only %d provided", numTimes, len(times)))
+		al.logger.Warningf(fmt.Sprintf("%d times requested, only %d provided", numTimes, len(times)))
 	}
 	return times, nil
 }
