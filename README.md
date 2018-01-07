@@ -58,6 +58,10 @@
   - [ ] Re-Pull data and parse after X duration (J)
   - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
 
+## Notes
+- Start over button more apparent?
+- Scroll to top after clicking an option or grey out the station you clicked and all non-connection stations?
+
 ## Server Cleanup
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
 - [ ] Fuckin' interfaces -- Need 'em (J)
