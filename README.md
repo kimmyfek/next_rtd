@@ -35,6 +35,8 @@
 - [ ] Show arrival time to the _TO_ station (K)
 - [ ] Contact us / Feedback / About (K)
 - [ ] Queries hitting the backend twice (K)
+- [ ] Make bundle.css smaller
+- [ ] Make app.js smaller
 - [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Ad? (J / K)
 - [ ] SEO (J / K)
