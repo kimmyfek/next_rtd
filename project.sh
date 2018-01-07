@@ -51,6 +51,17 @@ function rundb() {
 		mysql:5.7
 }
 
+function debug() {
+	docker run --rm -d --name nxt-mysql-debug \
+		-e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+		-e MYSQL_DATABASE=rtd \
+		-p 3306:3306 \
+		mysql:5.7
+	echo "Taking a nap while mysql turns on"
+	sleep 10
+	./nxt-darwin-amd64 --level=debug
+}
+
 case "$COMMAND" in
 	build)
 		build
@@ -60,4 +71,7 @@ case "$COMMAND" in
 		rundb
 		echo "Done"
 		;;
+	debug)
+		build
+		debug
 esac

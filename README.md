@@ -24,7 +24,11 @@
 - [x] Log status of each request (J)
 - [x] Graceful shutdown (J)
 - [x] Theatre district stop should display as "Theatre District / Convention Center" (J)
-- [ ] Build script needs to work (J) ** TODO BIG ONE **
+- [x] Build script needs to work (J)
+- Building
+ - [ ] Build JS from container
+ - [ ] Docker image for apache + go + js
+ - [ ] Script to deploy sql + go to remote
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
 - [ ] Word light rail (K)
