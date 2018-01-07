@@ -29,7 +29,7 @@ function build() {
 
 
 	docker run --rm --name nxt-rtd-build \
-		-v $(PWD):/go/src/github.com/kimmyfek/next_rtd \
+		-v $(pwd):/go/src/github.com/kimmyfek/next_rtd \
 		-w /go/src/github.com/kimmyfek/next_rtd \
 		-e GOOS=$GOOS \
 		-e GOARCH=$GOARCH \
