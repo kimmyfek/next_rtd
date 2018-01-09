@@ -13,7 +13,7 @@ class Station extends React.Component {
           from: "",
           times: "",
           direction: "",
-          pageText: "Departing Station"
+          pageText: "Where Are You Leaving From?"
         };
         this.state = this.initState;
 	}
@@ -103,8 +103,10 @@ class Station extends React.Component {
       }
       return (
         <div>
+        <div className="header">
           <h3>{me.state.pageText}</h3>
           <h5><i>{fromDisplay}</i></h5>
+        </div>
         <br />
         <ButtonGroup vertical block className="stations">
           {listStations}
