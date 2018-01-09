@@ -54,7 +54,7 @@
     - [ ] Password secret for Docker run
 	- [ ] Explain query
 - Parser Improvements (J)
-  - [ ] Parser writes to temp table and replaces instead (J) ** TODO BIG ONE **
+  - [x] Parser writes to temp table and replaces instead (J)
   - [ ] Update DB live
   - [ ] Refresh cache on reload (J)
   - [ ] Re-Pull data and parse after X duration (J)
@@ -66,7 +66,7 @@
 
 ## Server Cleanup
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
-- [ ] Fuckin' interfaces -- Need 'em (J)
+- [x] Fuckin' interfaces -- Need 'em (J)
 - [ ] Now is a really bad name for time in db.go (J)
 - [ ] Move rtdtime struct (J)
 - [ ] Lots and lots of tests Backend (J)
