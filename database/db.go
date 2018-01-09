@@ -552,6 +552,11 @@ func (al *AccessLayer) getStationTimes(from, to, now, day string, numTimes int) 
 		ORDER BY departure_time ASC
 		LIMIT ?
 	`, day)
+	al.logger.Debugf("Query: %s", query)
+	al.logger.Debugf("From: %s", from)
+	al.logger.Debugf("To: %s", to)
+	al.logger.Debugf("Now: %s", now)
+	al.logger.Debugf("Numtimes: %d", numTimes)
 	return al.AL.Query(query, from, to, now, numTimes)
 }
 
@@ -585,6 +590,9 @@ func (r *rtdTime) toStringRTDTime() string {
 		intH += 24
 	}
 	h := strconv.Itoa(intH)
+	if intH < 10 {
+		h = fmt.Sprintf("0%s", h)
+	}
 	return fmt.Sprintf("%s:%s:%s", h, r.m, r.s)
 }
 

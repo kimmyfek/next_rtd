@@ -29,6 +29,7 @@
  - [ ] Build JS from container
  - [ ] Docker image for apache + go + js
  - [ ] Script to deploy sql + go to remote
+- [ ] Add some logs to DB rollover scripts
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
 - [ ] Word light rail (K)
