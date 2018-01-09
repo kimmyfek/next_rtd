@@ -1,19 +1,14 @@
 'use strict'
 
-var deps = require('./dependencies');
-
 var gulp = require('gulp'),
     browserify = require('browserify'),
 	babelify = require('babelify'),
-    buffer = require('gulp-buffer'),
+    buffer = require('vinyl-buffer'),
 	source = require('vinyl-source-stream'),
-    bust = require('gulp-buster'),
     clean = require('gulp-clean'),
-    changed = require('gulp-changed'),
     csslint = require('gulp-csslint'),
-    eslint = require('gulp-eslint'),
-    size = require('gulp-size'),
-    concatCss = require('gulp-concat-css');
+    concatCss = require('gulp-concat-css'),
+    uglify = require('gulp-uglify');
 
 // Input file.
 var bundler = browserify('src/jsx/app.jsx', {
@@ -41,7 +36,6 @@ function bundle() {
     ;
 }
 
-
 gulp.task('concatCss', function () {
   return gulp.src('next/static/css/*.css')
     .pipe(concatCss("bundle.css"))
@@ -55,6 +49,8 @@ gulp.task('transformMain', function() {
 		 }))
         .bundle()
         .pipe(source('./app.js'))
+        .pipe(buffer())
+		.pipe(uglify())
         .pipe(gulp.dest('./next/static/scripts/js'));
 });
 
@@ -63,33 +59,14 @@ gulp.task('clean', function() {
 });
 
 gulp.task('default', ['clean'], function() {
-  gulp.start('concat');
   gulp.start('transformMain');
-  gulp.start('eslint');
   gulp.start('concatCss');
-  gulp.watch('./next/static/css/*.css', ['concat', 'csslint']);
-  gulp.watch(['./next/static/scripts/jsx/*.js', './next/static/scripts/jsx/**/*.js'], ['transformMain', 'eslint']);
-});
-
-gulp.task('eslint', function () {
-//  return gulp.src(['./next/static/scripts/jsx/*.js'])
-//    .pipe(eslint())
-//    .pipe(eslint.format())
-//    .pipe(eslint.failAfterError());
+  gulp.watch('./next/static/css/*.css', ['csslint']);
+  gulp.watch(['./next/static/scripts/jsx/*.js', './next/static/scripts/jsx/**/*.js'], ['transformMain']);
 });
 
 gulp.task('csslint', function() {
   gulp.src('./next/static/css/main.css')
     .pipe(csslint('csslintrc.json'))
     .pipe(csslint.formatter('fail'));
-});
-
-gulp.task('concat', function() {
-  var concat = require('gulp-concat');
-
-  gulp.src(deps.js)
-    .pipe(concat('scripts.js'))
-    .pipe(gulp.dest('./next/static/scripts/js'))
-    .pipe(bust())
-    .pipe(gulp.dest('./next/static/scripts/js'));
 });
