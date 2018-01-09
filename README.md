@@ -49,10 +49,10 @@
     - [x] Replace sqlite with mysql in db.go
     - [x] Validate queries are working appropriately
     - [x] Move indexes to outside of check db.
-    - [ ] Build ConnString on CLI / ENV
-    - [ ] Password secret on CLI / ENV for service
+    - [x] Build ConnString on CLI / ENV
+    - [x] Password secret on CLI / ENV for service
     - [ ] Password secret for Docker run
-	- [ ] Explain query
+	- [x] Explain query
 - Parser Improvements (J)
   - [x] Parser writes to temp table and replaces instead (J)
   - [ ] Update DB live

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"net/http"
@@ -14,10 +15,19 @@ import (
 	"github.com/kimmyfek/next_rtd/web"
 )
 
+var debug = flag.Bool("debug", false, "Debug mode & logs")
+var port = flag.Int("port", 3000, "Port to host service on")
+
+// Data Parsing Flags
 var parse = flag.Bool("parse", false, "If provided will parse data and add to DB. Default: Disabled")
 var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt files are located. NOT NEEDED IF PARSE=false")
-var level = flag.String("level", "info", "Log level. Valid options: 'Info', 'Debug'")
-var port = flag.Int("port", 3000, "Port to host service on")
+
+// MySQL Flags
+//var sqlPort = flag.String("sqlPort", "", "The for SQL Connstring)
+var sqlPass = flag.Bool("sqlPass", false, "Password flag SQL Connstring")
+var sqlUser = flag.String("sqlUser", "root", "The user for SQL Connstring")
+var sqlHost = flag.String("sqlHost", "localhost", "The hostname for SQL Connstring")
+var sqlDB = flag.String("sqlDB", "rtd", "The DB Name for SQL Connstring")
 
 func main() {
 	flag.Parse()
@@ -34,7 +44,16 @@ func main() {
 	logger.Info("Application Initialization Begin...")
 	logger.Debug("Debug mode enabled")
 
-	al := database.NewAccessLayer(logger)
+	var sqlPassword string
+	if *sqlPass {
+		r := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter SQL Password: ")
+		sqlPassword, err = r.ReadString('\n')
+		if err != nil {
+			logger.Fatalf("Unable to read password from stdin: %s", err)
+		}
+	}
+	al := database.NewAccessLayer(logger, *sqlUser, sqlPassword, *sqlHost, *sqlDB)
 	if err = al.Open(); err != nil {
 		panic(fmt.Sprintf("Unable to create and open database: %s", err))
 	}

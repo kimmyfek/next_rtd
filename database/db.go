@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
 
-	_ "github.com/go-sql-driver/mysql" // SQL doesn't need a name
+	"github.com/go-sql-driver/mysql" // SQL doesn't need a name
 	m "github.com/kimmyfek/next_rtd/models"
 )
 
@@ -37,17 +37,34 @@ var serviceIDMap = map[string]string{
 type AccessLayer struct {
 	AL     *sql.DB
 	logger *log.Entry
+	pass   string
+	user   string
+	host   string
+	db     string
 }
 
 // NewAccessLayer is the function provided to instantiate a new instance of the
 // AccessLayer object and connect to the DB.
-func NewAccessLayer(logger *log.Entry) *AccessLayer {
-	return &AccessLayer{logger: logger}
+func NewAccessLayer(logger *log.Entry, user, pass, host, db string) *AccessLayer {
+	return &AccessLayer{
+		logger: logger,
+		user:   user,
+		pass:   pass,
+		host:   host,
+		db:     db,
+	}
 }
 
 // Open begins the connection with the db
 func (al *AccessLayer) Open() error {
-	db, err := sql.Open("mysql", "root@/rtd")
+	c := mysql.Config{
+		User:   al.user,
+		Passwd: al.pass,
+		DBName: al.db,
+		Addr:   al.host,
+	}
+	db, err := sql.Open("mysql", c.FormatDSN())
+	//db, err := sql.Open("mysql", "root@/rtd")
 	if err != nil {
 		return err
 	}
