@@ -47,15 +47,12 @@ func main() {
 	}()
 
 	if *parse {
-		logger.Warning("Parsing data into DB.")
-		logger.Warning("---------- WARNING ----------")
-		logger.Warning("Be sure the DB is new and empty, else this will error or create dup data")
-		logger.Warning("---------- WARNING ----------")
+		logger.Info("Parsing data and inserting into DB.")
 		parser.ParseData(al, *sourceDir)
 	}
 
 	logger.Info("Init endpoints")
-	rh := web.NewRestHandler(al, logger)
+	rh := web.NewRESTHandler(al, logger)
 	rh.Init()
 
 	stop := make(chan os.Signal, 1)

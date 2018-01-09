@@ -53,143 +53,81 @@ func (al *AccessLayer) Open() error {
 	}
 	al.AL = db
 
-	if !al.tableExists(routesTable) {
-		// TODO rename table columns to not have table name in it
-		_, err := al.AL.Exec(fmt.Sprintf(`
-			CREATE TABLE %s(
-				route_id 		 VARCHAR(10) NOT NULL PRIMARY KEY,
-				route_short_name VARCHAR(5) NOT NULL,
-				route_long_name  VARCHAR(255) NOT NULL,
-				route_desc		 VARCHAR(255) NOT NULL
-			)
-		`, routesTable))
-
-		if err != nil {
-			al.logger.Errorf("Error creating %s table", routesTable)
-			return err
-		}
-		al.logger.Info("Created routes table")
+	err = al.CreateTables(false)
+	if err != nil {
+		return err
 	}
 
-	if !al.tableExists(stopsTable) {
-		_, err := al.AL.Exec(fmt.Sprintf(`
-			CREATE TABLE %s(
-				stop_id 	    INT NOT NULL PRIMARY KEY,
-				stop_code		INT NOT NULL,
-				stop_name		VARCHAR(55) NOT NULL,
-				stop_desc		VARCHAR(55) NOT NULL
-			)
-		`, stopsTable))
-
-		if err != nil {
-			al.logger.Errorf("Error creating %s table", stopsTable)
-			return err
-		}
-		al.logger.Info("Created stops table")
+	err = al.CreateIndices(false)
+	if err != nil {
+		return err
 	}
 
-	if !al.indexExists(stopsTable, "idx_stop_name") {
-		_, err = al.AL.Exec("CREATE INDEX idx_stop_name ON stops(stop_name)")
-		if err != nil {
-			al.logger.Errorf("Error creating %s index", stopsTable)
-			return err
-		}
-		al.logger.Info("Created idx_stop_name index")
-	}
-	if !al.tableExists(stopTimesTable) {
-		_, err := al.AL.Exec(fmt.Sprintf(`
-			CREATE TABLE %s(
-				trip_id			INT NOT NULL,
-				arrival_time	VARCHAR(9) NOT NULL,
-				departure_time	VARCHAR(9) NOT NULL,
-				stop_id			INT NOT NULL
-			)
-		`, stopTimesTable))
-
-		if err != nil {
-			al.logger.Errorf("Error creating %s table", stopTimesTable)
-			return err
-		}
-		al.logger.Info("Created stop times table")
-	}
-
-	if !al.indexExists(stopTimesTable, "idx_trip_id") {
-		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON stop_times(trip_id)")
-		if err != nil {
-			al.logger.Errorf("Error creating %s index", stopTimesTable)
-			return err
-		}
-		al.logger.Infof("Created idx_trip_id index on StopTimesTable")
-	}
-
-	if !al.indexExists(stopTimesTable, "idx_arrival_time") {
-		_, err = al.AL.Exec("CREATE INDEX idx_arrival_time ON stop_times(arrival_time)")
-		if err != nil {
-			al.logger.Errorf("Error creating %s index", stopTimesTable)
-			return err
-		}
-		al.logger.Info("Created idx_arrival_time index")
-	}
-
-	if !al.tableExists(tripsTable) {
-		_, err := al.AL.Exec(fmt.Sprintf(`
-			CREATE TABLE %s(
-				route_id 	 VARCHAR(10) NOT NULL,
-				service_id	 VARCHAR(15) NOT NULL,
-				trip_id		 INT NOT NULL,
-				direction_id INT NOT NULL
-			)
-		`, tripsTable))
-
-		if err != nil {
-			al.logger.Errorf("Error creating %s table", tripsTable)
-			return err
-		}
-		al.logger.Info("Created trips table")
-	}
-
-	if !al.indexExists(tripsTable, "idx_trip_id") {
-		_, err = al.AL.Exec("CREATE INDEX idx_trip_id ON trips(trip_id)")
-		if err != nil {
-			al.logger.Errorf("Error creating %s index", tripsTable)
-			return err
-		}
-		al.logger.Info("Created idx_trip_id index")
-	}
-
-	if !al.indexExists(tripsTable, "idx_service_id") {
-		_, err = al.AL.Exec("CREATE INDEX idx_service_id ON trips(service_id)")
-		if err != nil {
-			al.logger.Errorf("Error creating %s index", tripsTable)
-			return err
-		}
-		al.logger.Info("Created idx_service_id index")
-	}
-
-	if !al.tableExists(calendarTable) {
-		_, err := al.AL.Exec(fmt.Sprintf(`
-            CREATE TABLE %s(
-                service_id VARCHAR(15) NOT NULL,
-                monday     VARCHAR(15) NOT NULL,
-                tuesday    VARCHAR(15) NOT NULL,
-                wednesday  VARCHAR(15) NOT NULL,
-                thursday   VARCHAR(15) NOT NULL,
-                friday     VARCHAR(15) NOT NULL,
-                saturday   VARCHAR(15) NOT NULL,
-                sunday     VARCHAR(15) NOT NULL,
-                start_date VARCHAR(10) NOT NULL,
-                end_date   VARCHAR(10) NOT NULL
-            )
-        `, calendarTable))
-
-		if err != nil {
-			al.logger.Errorf("Error creating %s table", calendarTable)
-			return err
-		}
-		al.logger.Info("Created calendar table")
-
-	}
 	return nil
+
+}
+
+// CreateTables instantiates all tables if they exist.
+// If "temp" == true, all table names will have '_temp' appended to name
+func (al *AccessLayer) CreateTables(temp bool) error {
+	tableMap := map[string]string{
+		routesTable:    createRoutesTable,
+		stopsTable:     createStopsTable,
+		stopTimesTable: createStopTimesTable,
+		tripsTable:     createTripsTable,
+		calendarTable:  createCalendarTable,
+	}
+	for t, q := range tableMap {
+		t := getTableName(t, temp)
+		if al.tableExists(t) {
+			continue
+		}
+		query := fmt.Sprintf(q, t)
+		_, err := al.AL.Exec(query)
+		if err != nil {
+			al.logger.Errorf("Error creating %s table: %s", t, query)
+			return err
+		}
+		al.logger.Infof("Created %s table", t)
+	}
+
+	return nil
+}
+
+// CreateIndices creates the indexes for all tables
+func (al *AccessLayer) CreateIndices(temp bool) error {
+
+	idxMap := map[string][]string{
+		stopsTable:     []string{"stop_name"},
+		stopTimesTable: []string{"trip_id", "arrival_time"},
+		tripsTable:     []string{"trip_id", "service_id"},
+	}
+	for t, indices := range idxMap {
+		for _, c := range indices {
+			t := getTableName(t, temp)
+			i := fmt.Sprintf("idx_%s", c)
+			if al.indexExists(t, i) {
+				continue
+			}
+			q := fmt.Sprintf("CREATE INDEX %s ON %s(%s)", i, t, c)
+			_, err := al.AL.Exec(q)
+			if err != nil {
+				al.logger.Errorf("Error creating index %s against %s", i, t)
+				return err
+			}
+			al.logger.Infof("Created index %s against %s", i, t)
+		}
+	}
+
+	return nil
+}
+
+func getTableName(t string, temp bool) string {
+	if temp {
+		t = fmt.Sprintf("temp_%s", t)
+	}
+	return t
+
 }
 
 // Close executes the close functionality against the DB.
@@ -244,12 +182,13 @@ func (al *AccessLayer) ReplaceData() error {
 }
 
 // SaveRoutes stores Route m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveRoutes(table string, data map[string]m.Route) error {
+func (al *AccessLayer) SaveRoutes(temp bool, data map[string]m.Route) error {
+	table := getTableName(routesTable, temp)
 	if len(data) == 0 {
-		return fmt.Errorf("Unable to save routes, empty list provided")
+		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
 	}
-	stmt := `INSERT INTO routes (
-		route_id, route_short_name, route_long_name, route_desc) VALUES `
+	stmt := fmt.Sprintf(`INSERT INTO %s(
+		route_id, route_short_name, route_long_name, route_desc) VALUES `, table)
 	values := []string{}
 
 	for _, val := range data {
@@ -274,12 +213,13 @@ func (al *AccessLayer) SaveRoutes(table string, data map[string]m.Route) error {
 }
 
 // SaveTrips stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveTrips(table string, data map[string]m.Trip) error {
+func (al *AccessLayer) SaveTrips(temp bool, data map[string]m.Trip) error {
+	table := getTableName(tripsTable, temp)
 	if len(data) == 0 {
-		return fmt.Errorf("Unable to save trips, empty list provided")
+		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
 	}
-	stmt := `INSERT INTO trips (
-		route_id, service_id, trip_id, direction_id) VALUES `
+	stmt := fmt.Sprintf(`INSERT INTO %s(
+		route_id, service_id, trip_id, direction_id) VALUES `, table)
 	values := []string{}
 
 	for _, val := range data {
@@ -305,12 +245,13 @@ func (al *AccessLayer) SaveTrips(table string, data map[string]m.Trip) error {
 }
 
 // SaveStops stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveStops(table string, data map[string]m.Stop) error {
+func (al *AccessLayer) SaveStops(temp bool, data map[string]m.Stop) error {
+	table := getTableName(stopsTable, temp)
 	if len(data) == 0 {
-		return fmt.Errorf("Unable to save stop times, empty list provided")
+		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
 	}
-	stmt := `INSERT INTO stops(
-		stop_id, stop_code, stop_name, stop_desc) VALUES `
+	stmt := fmt.Sprintf(`INSERT INTO %s(
+		stop_id, stop_code, stop_name, stop_desc) VALUES `, table)
 	values := []string{}
 
 	for _, val := range data {
@@ -344,12 +285,13 @@ func (al *AccessLayer) SaveStops(table string, data map[string]m.Stop) error {
 }
 
 // SaveStopTimes stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveStopTimes(table string, data map[string][]m.StopTime) error {
+func (al *AccessLayer) SaveStopTimes(temp bool, data map[string][]m.StopTime) error {
+	table := getTableName(stopTimesTable, temp)
 	if len(data) == 0 {
-		return fmt.Errorf("Unable to save stops, empty list provided")
+		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
 	}
-	stmt := `INSERT INTO stop_times(
-		trip_id, arrival_time, departure_time, stop_id) VALUES `
+	stmt := fmt.Sprintf(`INSERT INTO %s(
+		trip_id, arrival_time, departure_time, stop_id) VALUES `, table)
 	values := []string{}
 
 	var numProvided int64
@@ -386,14 +328,15 @@ func (al *AccessLayer) SaveStopTimes(table string, data map[string][]m.StopTime)
 	return nil
 }
 
-// SaveCalendarData stores Calendar m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveCalendarData(table string, data []m.Calendar) error {
+// SaveCalendar stores Calendar m to the DB for each entry in the provided list
+func (al *AccessLayer) SaveCalendar(temp bool, data []m.Calendar) error {
+	table := getTableName(calendarTable, temp)
 	if len(data) == 0 {
-		return fmt.Errorf("Unable to calendar data, empty list provided")
+		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
 	}
-	stmt := `INSERT INTO calendar(
+	stmt := fmt.Sprintf(`INSERT INTO %s(
 		service_id, monday, tuesday, wednesday, thursday, friday,
-		saturday, sunday, start_date, end_date) VALUES `
+		saturday, sunday, start_date, end_date) VALUES `, table)
 	values := []string{}
 
 	var numProvided int64
@@ -423,6 +366,39 @@ func (al *AccessLayer) SaveCalendarData(table string, data []m.Calendar) error {
 			rowsAffected,
 			numProvided)
 	}
+	return nil
+}
+
+// SwapTables replaces all tables with their temp name equivelants
+func (al *AccessLayer) SwapTables() error {
+	query := "RENAME TABLE "
+	for i, t := range []string{routesTable, stopsTable, stopTimesTable, tripsTable, calendarTable} {
+		if i != 0 {
+			query += ", "
+		}
+		temp := getTableName(t, true)
+		bkup := fmt.Sprintf("%s_bkup", t)
+		query += fmt.Sprintf(" %s TO %s, %s TO %s ", t, bkup, temp, t)
+	}
+	if _, err := al.AL.Exec(query); err != nil {
+		return fmt.Errorf("Unable to swap temp tables for live tables: %s", err)
+	}
+
+	return nil
+}
+
+// DeleteBackupTables wipes out all backup tables
+func (al *AccessLayer) DeleteBackupTables() error {
+	query := fmt.Sprintf("DROP TABLES %s", strings.Join([]string{
+		fmt.Sprintf("%s_bkup", routesTable),
+		fmt.Sprintf("%s_bkup", stopsTable),
+		fmt.Sprintf("%s_bkup", stopTimesTable),
+		fmt.Sprintf("%s_bkup", tripsTable),
+		fmt.Sprintf("%s_bkup", calendarTable)}, ", "))
+	if _, err := al.AL.Exec(query); err != nil {
+		return fmt.Errorf("Unable to delete temp tables: %s", err)
+	}
+
 	return nil
 }
 
@@ -480,7 +456,6 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 		  AND t.trip_id = s2.trip_id
 		  AND st.arrival_time < s2.arrival_time
 	`
-
 	rows, err := al.AL.Query(query)
 	if err != nil {
 		return nil, err

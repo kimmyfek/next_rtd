@@ -7,43 +7,58 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kimmyfek/next_rtd/database"
 	m "github.com/kimmyfek/next_rtd/models"
 	set "gopkg.in/fatih/set.v0"
 )
 
+type db interface {
+	CreateTables(bool) error
+	SaveRoutes(bool, map[string]m.Route) error
+	SaveTrips(bool, map[string]m.Trip) error
+	SaveStops(bool, map[string]m.Stop) error
+	SaveStopTimes(bool, map[string][]m.StopTime) error
+	SaveCalendar(bool, []m.Calendar) error
+	SwapTables() error
+	DeleteBackupTables() error
+	CreateIndices(bool) error
+}
+
 // ParseData parses the data files and saves them to the data store.
-// TODO Merge union stations together
-// TODO stops with only a couple options? look at that data
-func ParseData(db *database.AccessLayer, fileDir string) {
+func ParseData(d db, fileDir string) {
 	routes := parseRoutes(fileDir, "routes")
 	trips := parseTrips(routes, fileDir, "trips")
-	stopTimes, stopIDs := parseStopTimes(trips, fileDir, "stop_times") // TODO could switch back to stopid for key
+	stopTimes, stopIDs := parseStopTimes(trips, fileDir, "stop_times")
 	stops := parseStops(stopIDs, fileDir, "stops")
 	calData := parseCalendar(fileDir, "calendar")
 
-	// TODO fix the funcs
-	err := db.SaveRoutes("routes", routes) // Replace with replacedata
-	if err != nil {
+	if err := d.CreateTables(true); err != nil {
+		panic(err)
+	}
+	if err := d.SaveRoutes(true, routes); err != nil {
 		panic(fmt.Sprintf("Unable to save routes to db: %s", err))
 	}
-	err = db.SaveTrips("trips", trips) // Replace with replacedata
-	if err != nil {
+	if err := d.SaveTrips(true, trips); err != nil {
 		panic(fmt.Sprintf("Unable to save trips to db: %s", err))
 	}
-	err = db.SaveStops("stops", stops) // Replace with replacedata
-	if err != nil {
+	if err := d.SaveStops(true, stops); err != nil {
 		panic(fmt.Sprintf("Unable to save stops to db: %s", err))
 	}
-	err = db.SaveStopTimes("stop_times", stopTimes) // Replace with replacedata
-	if err != nil {
+	if err := d.SaveStopTimes(true, stopTimes); err != nil {
 		panic(fmt.Sprintf("Unable to save stop_times to db: %s", err))
 	}
-	err = db.SaveCalendarData("calendar", calData)
-	if err != nil {
+	if err := d.SaveCalendar(true, calData); err != nil {
 		panic(fmt.Sprintf("Unable to save calendar to db: %s", err))
 	}
 
+	if err := d.SwapTables(); err != nil {
+		panic(err)
+	}
+	if err := d.DeleteBackupTables(); err != nil {
+		panic(err)
+	}
+	if err := d.CreateIndices(false); err != nil {
+		panic(err)
+	}
 }
 
 func parseRoutes(path, filename string) map[string]m.Route {
