@@ -30,14 +30,14 @@
  - [ ] Docker image for apache + go + js
  - [ ] Script to deploy sql + go to remote
 - [ ] Add some logs to DB rollover scripts (J)
-- [ ] Footer (K)
+- [X] Footer (K)
 - [ ] Like, FB, Tweet (K)
 - [ ] Word light rail (K)
-- [ ] Show arrival time to the _TO_ station (K)
-- [ ] Contact us / Feedback / About (K)
+- [X] Show arrival time to the _TO_ station (K)
+- [ ] Contact us / Feedback / About (K / J)
 - [ ] Queries hitting the backend twice (K)
-- [ ] Make bundle.css smaller (K)
-- [ ] Make app.js smaller (K)
+- [X] Make bundle.css smaller (K)
+- [X] Make app.js smaller (K)
 - [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Ad? (J / K)
 - [ ] SEO (J / K)
@@ -70,7 +70,7 @@
 - Scroll to top after clicking an option or grey out the station you clicked and all non-connection stations?
 
 ## Server Cleanup
-- [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
+- [X] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
 - Interfaces
   - [ ] db.go -> sql interface ?
   - [ ] Create log package and work on interfacing
