@@ -41,3 +41,7 @@
   margin-bottom: 30px;
 
 }
+
+.btn:focus {
+  outline: none;
+}
