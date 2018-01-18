@@ -38,11 +38,10 @@
 - [ ] Queries hitting the backend twice (K)
 - [X] Make bundle.css smaller (K)
 - [X] Make app.js smaller (K)
-- [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Ad? (J / K)
 - [ ] SEO (J / K)
 - [ ] Validate data (J / K)
-- [ ] HTTP Server like Apache (J / K) ** BIG PRIORITY / REPUTATION **
+- [ ] HTTP Server like Apache (J / K)
 - [ ] Rename everything to rtdgo.co (J / K)
 - Performance Optimizations
   - MySQL? (J)
@@ -57,13 +56,14 @@
 - Parser Improvements (J)
   - [x] Parser writes to temp table and replaces instead (J)
   - [ ] Stuttering on parser.parser
+  - Choose one
+	- [ ] Check calendar start-end date, and make sure today falls in that value. If not, parse
+	- [ ] Re-Pull data and parse each day at 4am
+  - [ ] Determine which file to download & unzip
   - [ ] Update DB live
   - [ ] Refresh cache on reload
-  - [ ] Determine which file to download
-  - [ ] Parser has logger
-  - [ ] Check calendar start-end date, and make sure today falls in that value
-  - [ ] Re-Pull data and parse after X duration
-  - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent
+  - [x] Parser has logger
+  - [x] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent
 
 ## Notes
 - Start over button more apparent?

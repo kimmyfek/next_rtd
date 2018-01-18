@@ -60,9 +60,6 @@ class App extends React.Component {
               <Station stations={this.state.stations} reset={this.state.reset} />
           </div>
           <br />
-          <div className="footer">
-          <span><a href="mailto:rtdgodenver@gmail.com?Subject=RTD Go" target="_top">Contact Us</a></span>
-          </div>
 		</div>
 	  );
 	}
