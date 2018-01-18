@@ -12,6 +12,27 @@ class Time extends React.Component {
         };
 	}
 
+    formatTime(t) {
+      // format the time
+      var d_time = t;
+      var d_hr = parseInt(d_time.substring(0,2));
+      var d_min = d_time.substring(3,5);
+      var am_pm = 'AM';
+      if (d_hr >= 24){
+          d_hr -= 24;
+          if (d_hr == 0){
+              d_hr = 12;
+          }
+          am_pm = 'AM';
+      } else if (d_hr >=12 && d_hr < 24){
+          if (d_hr != 12){
+              d_hr -= 12;
+          }
+          am_pm = 'PM';
+      }
+      return d_hr.toString() + ":" + d_min.toString() + " " + am_pm;
+    }
+
  	render() {
 		var me = this;
 
@@ -30,36 +51,19 @@ class Time extends React.Component {
             );
         } else {
             var listTimes = me.state.times.map(function(time) {
-                // format the time
-                var d_time = time.departure_time;
-                var d_hr = parseInt(d_time.substring(0,2));
-                var d_min = d_time.substring(3,5);
-                var am_pm = 'AM';
-                if (d_hr >= 24){
-                    d_hr -= 24;
-                    if (d_hr == 0){
-                        d_hr = 12;
-                    }
-                    am_pm = 'AM';
-                } else if (d_hr >=12 && d_hr < 24){
-                    if (d_hr != 12){
-                        d_hr -= 12;
-                    }
-                    am_pm = 'PM';
-                }
+                var dep_time = me.formatTime(time.departure_time);
+                var arr_time = me.formatTime(time.arrival_time);
 
                 return (
-                  <h4 key={time.departure_time + time.route}>
-                  <ListGroupItem bsStyle="success">
-                    <span className="next-train">
-                    {time.route}
-                    </span>
-                    <span className="next-time">
-                    {d_hr.toString() + ":" + d_min.toString() + " " + am_pm}
-                    </span>
-                  </ListGroupItem></h4>
+                  <div key={time.route+dep_time}>
+                  <ListGroupItem header={time.route + " line at " + dep_time} bsStyle="success">
+                    <i>{"You should arrive by " + arr_time}</i>
+                  </ListGroupItem>
+                  <br />
+                  </div>
                   );
               });
+
               return (
                 <div>
                 <div className="header">
@@ -68,12 +72,6 @@ class Time extends React.Component {
                 <hr />
                 <br />
                 <ListGroup className="time-list">
-                  <span className="next-train">
-                  {"Route"}
-                  </span>
-                  <span className="next-time">
-                  {"Arriving Time"}
-                  </span>
                   {listTimes}
                 </ListGroup>
                 </div>

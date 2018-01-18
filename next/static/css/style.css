@@ -31,17 +31,6 @@
 
 }
 
-.next-train {
-  float: right;
-  margin-right: 30px;
-  font-weight: bold;
-}
-
-.next-time {
-  margin-left: 30px;
-  font-weight: bold;
-}
-
 .time-list {
   width: 65%;
   margin: auto;
