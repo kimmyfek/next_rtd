@@ -8302,6 +8302,7 @@ button.close {
   margin-bottom: 10px;
   outline: none;
   box-shadow: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 .station-btn-text {
@@ -8309,9 +8310,7 @@ button.close {
   white-space: normal;
 }
 
-.header {
-  width: 75%;
-}
+
 
 .reset-btn {
   float: right;
