@@ -35,7 +35,7 @@
 - [ ] Word light rail (K)
 - [X] Show arrival time to the _TO_ station (K)
 - [ ] Contact us / Feedback / About (K / J)
-- [ ] Queries hitting the backend twice (K)
+- [X] Queries hitting the backend twice (K)
 - [X] Make bundle.css smaller (K)
 - [X] Make app.js smaller (K)
 - [ ] Ad? (J / K)
