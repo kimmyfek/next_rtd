@@ -53,6 +53,8 @@ function rundb() {
 
 function debug() {
 	# Should do a docker delete nxt-mysql-debug and not care if it fails
+	docker stop nxt-mysql-debug || true
+	sleep 3
 	docker run --rm -d --name nxt-mysql-debug \
 		-e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
 		-e MYSQL_DATABASE=rtd \

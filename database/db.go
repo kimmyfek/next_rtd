@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
 
-	"github.com/go-sql-driver/mysql" // SQL doesn't need a name
 	m "github.com/kimmyfek/next_rtd/models"
 )
 
@@ -183,19 +183,6 @@ func (al *AccessLayer) indexExists(table, index string) bool {
 // GetStations retrieves a list of stations from the DB and returns them
 func (al *AccessLayer) GetStations() []string {
 	return []string{}
-}
-
-// ReplaceData deletes all of the data that existed prior to a dump and
-// replaces that data with the newly dumped data. In order for that to work,
-// ReplaceData must do the following.
-// 1. Accepts lists of all of the newly dumped objects
-//   - If any of the lists are empty, the dump errors out
-// 2. Creates temporary tables for each of the newly dumped fields that are
-// 		duplicates of the existing tables.
-// 3. Dumps the data to the temp tables.
-// 4. Lock the live tables, rename them, rename temp tables to live names, remove lock
-func (al *AccessLayer) ReplaceData() error {
-	return nil
 }
 
 // SaveRoutes stores Route m to the DB for each entry in the provided list

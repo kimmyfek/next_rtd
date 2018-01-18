@@ -29,15 +29,15 @@
  - [ ] Build JS from container
  - [ ] Docker image for apache + go + js
  - [ ] Script to deploy sql + go to remote
-- [ ] Add some logs to DB rollover scripts
+- [ ] Add some logs to DB rollover scripts (J)
 - [ ] Footer (K)
 - [ ] Like, FB, Tweet (K)
 - [ ] Word light rail (K)
 - [ ] Show arrival time to the _TO_ station (K)
 - [ ] Contact us / Feedback / About (K)
 - [ ] Queries hitting the backend twice (K)
-- [ ] Make bundle.css smaller
-- [ ] Make app.js smaller
+- [ ] Make bundle.css smaller (K)
+- [ ] Make app.js smaller (K)
 - [ ] Updating deployment currently requires killing the service after a git pull and restarting it. Need to find a better solution, and be able to deploy from local (J / K)
 - [ ] Ad? (J / K)
 - [ ] SEO (J / K)
@@ -56,10 +56,14 @@
 	- [x] Explain query
 - Parser Improvements (J)
   - [x] Parser writes to temp table and replaces instead (J)
+  - [ ] Stuttering on parser.parser
   - [ ] Update DB live
-  - [ ] Refresh cache on reload (J)
-  - [ ] Re-Pull data and parse after X duration (J)
-  - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent (J)
+  - [ ] Refresh cache on reload
+  - [ ] Determine which file to download
+  - [ ] Parser has logger
+  - [ ] Check calendar start-end date, and make sure today falls in that value
+  - [ ] Re-Pull data and parse after X duration
+  - [ ] Dynamically pull data based on column position during parsing to deal with RTD columns being not consistent
 
 ## Notes
 - Start over button more apparent?
@@ -67,7 +71,10 @@
 
 ## Server Cleanup
 - [ ] UI Should Sort stations as |1 2| |3 4| instead of |1 3| |2 4| (K)
-- [x] Fuckin' interfaces -- Need 'em (J)
+- Interfaces
+  - [ ] db.go -> sql interface ?
+  - [ ] Create log package and work on interfacing
+- [ ] Package renaming
 - [ ] Now is a really bad name for time in db.go (J)
 - [ ] Move rtdtime struct (J)
 - [ ] Lots and lots of tests Backend (J)

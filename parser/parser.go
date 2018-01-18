@@ -8,8 +8,36 @@ import (
 	"strings"
 
 	m "github.com/kimmyfek/next_rtd/models"
+	log "github.com/sirupsen/logrus"
 	set "gopkg.in/fatih/set.v0"
 )
+
+// Col Names
+var rID = "route_id"
+var rShort = "route_short_name"
+var rLong = "route_long_name"
+var rDesc = "route_desc"
+
+var tID = "trip_id"
+var servID = "service_id"
+var dirID = "direction_id"
+
+var aTime = "arrival_time"
+var dTime = "departure_time"
+var sDate = "start_date"
+var eDate = "end_date"
+
+var sID = "stop_id"
+var sCode = "stop_code"
+var sName = "stop_name"
+var sDesc = "stop_desc"
+
+// File header columns
+var routeC = []string{rID, rShort, rLong, rDesc}
+var tripC = []string{rID, servID, tID, dirID}
+var sTimeC = []string{tID, aTime, dTime, sID}
+var stopC = []string{sID, sCode, sName, sDesc}
+var calC = []string{servID, "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", sDate, eDate}
 
 type db interface {
 	CreateTables(bool) error
@@ -23,42 +51,87 @@ type db interface {
 	CreateIndices(bool) error
 }
 
-// ParseData parses the data files and saves them to the data store.
-func ParseData(d db, fileDir string) {
-	routes := parseRoutes(fileDir, "routes")
-	trips := parseTrips(routes, fileDir, "trips")
-	stopTimes, stopIDs := parseStopTimes(trips, fileDir, "stop_times")
-	stops := parseStops(stopIDs, fileDir, "stops")
-	calData := parseCalendar(fileDir, "calendar")
+// Parser type allows parsing of a filedir
+type Parser struct {
+	DB      db
+	FileDir string
+	Logger  *log.Entry
+}
 
-	if err := d.CreateTables(true); err != nil {
+// ParseData parses the data files and saves them to the data store.
+func (p *Parser) ParseData() {
+	p.Logger.Info("Parsing Routes File")
+	routes := parseRoutes(p.FileDir, "routes")
+	p.Logger.Info("Parsing Trips File")
+	trips := parseTrips(routes, p.FileDir, "trips")
+	p.Logger.Info("Parsing StopTimes File")
+	stopTimes, stopIDs := parseStopTimes(trips, p.FileDir, "stop_times")
+	p.Logger.Info("Parsing Stops File")
+	stops := parseStops(stopIDs, p.FileDir, "stops")
+	p.Logger.Info("Parsing Calendar File")
+	calData := parseCalendar(p.FileDir, "calendar")
+
+	p.Logger.Info("Creating Temp Tables")
+	if err := p.DB.CreateTables(true); err != nil {
 		panic(err)
 	}
-	if err := d.SaveRoutes(true, routes); err != nil {
+
+	p.Logger.Info("Saving Routes file")
+	if err := p.DB.SaveRoutes(true, routes); err != nil {
 		panic(fmt.Sprintf("Unable to save routes to db: %s", err))
 	}
-	if err := d.SaveTrips(true, trips); err != nil {
+
+	p.Logger.Info("Saving Trips file")
+	if err := p.DB.SaveTrips(true, trips); err != nil {
 		panic(fmt.Sprintf("Unable to save trips to db: %s", err))
 	}
-	if err := d.SaveStops(true, stops); err != nil {
+
+	p.Logger.Info("Saving Stops file")
+	if err := p.DB.SaveStops(true, stops); err != nil {
 		panic(fmt.Sprintf("Unable to save stops to db: %s", err))
 	}
-	if err := d.SaveStopTimes(true, stopTimes); err != nil {
+
+	p.Logger.Info("Saving StopsTimes file")
+	if err := p.DB.SaveStopTimes(true, stopTimes); err != nil {
 		panic(fmt.Sprintf("Unable to save stop_times to db: %s", err))
 	}
-	if err := d.SaveCalendar(true, calData); err != nil {
+
+	p.Logger.Info("Saving Calendar file")
+	if err := p.DB.SaveCalendar(true, calData); err != nil {
 		panic(fmt.Sprintf("Unable to save calendar to db: %s", err))
 	}
 
-	if err := d.SwapTables(); err != nil {
+	p.Logger.Info("Swapping Temp and Prod tables")
+	if err := p.DB.SwapTables(); err != nil {
 		panic(err)
 	}
-	if err := d.DeleteBackupTables(); err != nil {
+
+	p.Logger.Info("Deleting prod tables")
+	if err := p.DB.DeleteBackupTables(); err != nil {
 		panic(err)
 	}
-	if err := d.CreateIndices(false); err != nil {
+
+	p.Logger.Info("Creating new prod indices")
+	if err := p.DB.CreateIndices(false); err != nil {
 		panic(err)
 	}
+}
+
+func getColPos(cols []string, r []string) (map[string]int, error) {
+	pos := make(map[string]int)
+	for i, c := range r {
+		for _, name := range cols {
+			if name == c {
+				pos[c] = i
+			}
+		}
+		if len(pos) == len(cols) {
+			return pos, nil
+		}
+	}
+
+	return pos, fmt.Errorf("num columns (%s) != num positions (%v) -- row (%s)", cols, pos, r)
+
 }
 
 func parseRoutes(path, filename string) map[string]m.Route {
@@ -70,9 +143,10 @@ func parseRoutes(path, filename string) map[string]m.Route {
 	defer f.Close()
 
 	routes := make(map[string]m.Route)
-	var typeIdx int
+	typeIdx := 1000
 	r := csv.NewReader(f)
 
+	colPos := make(map[string]int)
 	for {
 		if route, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -81,27 +155,25 @@ func parseRoutes(path, filename string) map[string]m.Route {
 				panic(fmt.Sprintf("Unable to parse routes: %s", err))
 			}
 		} else {
-			if route[0] == "route_id" {
+			if len(colPos) == 0 {
+				colPos, err = getColPos(routeC, route)
 				for idx, val := range route {
 					if val == "route_type" {
 						typeIdx = idx
 					}
 				}
-				if typeIdx == 0 {
+				if typeIdx == 1000 {
 					panic("Type index is not set")
 				}
 				continue
 			}
+
 			if route[typeIdx] == "2" || route[typeIdx] == "0" {
-				routes[route[0]] = m.Route{
-					RouteID:        route[0],
-					RouteShortName: route[1],
-					RouteLongName:  route[2],
-					RouteDesc:      route[3],
-					RouteType:      route[4],
-					RouteURL:       route[5],
-					RouteColor:     route[6],
-					RouteTextColor: route[7],
+				routes[route[colPos[rID]]] = m.Route{
+					RouteID:        route[colPos[rID]],
+					RouteShortName: route[colPos[rShort]],
+					RouteLongName:  route[colPos[rLong]],
+					RouteDesc:      route[colPos[rDesc]],
 				}
 			}
 		}
@@ -121,6 +193,7 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 	trips := make(map[string]m.Trip)
 	r := csv.NewReader(f)
 
+	colPos := make(map[string]int)
 	for {
 		if trip, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -129,15 +202,16 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 				panic(fmt.Sprintf("Unable to parse trips: %s", err))
 			}
 		} else {
-			if _, ok := routes[trip[0]]; ok == true {
-				trips[trip[2]] = m.Trip{
-					RouteID:      trip[0],
-					ServiceID:    trip[1],
-					TripID:       trip[2],
-					TripHeadsign: trip[3],
-					DirectionID:  trip[4],
-					BlockID:      trip[5],
-					ShapeID:      trip[6],
+			if len(colPos) == 0 {
+				colPos, err = getColPos(tripC, trip)
+				continue
+			}
+			if _, ok := routes[trip[colPos[rID]]]; ok == true {
+				trips[trip[colPos[tID]]] = m.Trip{
+					RouteID:     trip[colPos[rID]],
+					ServiceID:   trip[colPos[servID]],
+					TripID:      trip[colPos[tID]],
+					DirectionID: trip[colPos[dirID]],
 				}
 			}
 		}
@@ -157,6 +231,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 	stopIDs := set.New()
 	r := csv.NewReader(f)
 
+	colPos := make(map[string]int)
 	for {
 		if stopTime, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -165,19 +240,19 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 				panic(fmt.Sprintf("Unable to parse stop_times: %s", err))
 			}
 		} else {
-			if _, ok := trips[stopTime[0]]; ok == true {
-				stopTimes[stopTime[0]] = append(stopTimes[stopTime[0]], m.StopTime{
-					TripID:            stopTime[0],
-					ArrivalTime:       stopTime[1],
-					DepartureTime:     stopTime[2],
-					StopID:            stopTime[3],
-					StopSequence:      stopTime[4],
-					StopHeadsign:      stopTime[5],
-					PickupType:        stopTime[6],
-					DropOffType:       stopTime[7],
-					ShapeDistTraveled: stopTime[8],
+			if len(colPos) == 0 {
+				colPos, err = getColPos(sTimeC, stopTime)
+				continue
+			}
+
+			if _, ok := trips[stopTime[colPos[tID]]]; ok == true {
+				stopTimes[stopTime[colPos[tID]]] = append(stopTimes[stopTime[colPos[tID]]], m.StopTime{
+					TripID:        stopTime[colPos[tID]],
+					ArrivalTime:   stopTime[colPos[aTime]],
+					DepartureTime: stopTime[colPos[dTime]],
+					StopID:        stopTime[colPos[sID]],
 				})
-				stopIDs.Add(stopTime[3])
+				stopIDs.Add(stopTime[colPos[sID]])
 			}
 		}
 	}
@@ -207,6 +282,7 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 		"Westminster Station":                            "Westminster Station",
 	}
 
+	colPos := make(map[string]int)
 	for {
 		if stop, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -215,27 +291,24 @@ func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
 				panic(fmt.Sprintf("Unable to parse stops: %s", err))
 			}
 		} else {
-			stopName := stop[2]
+			if len(colPos) == 0 {
+				colPos, err = getColPos(stopC, stop)
+				continue
+			}
+
+			stopName := stop[colPos[sName]]
 			for test, short := range shortNames {
 				if strings.Contains(stopName, test) {
 					stopName = short
 					break
 				}
 			}
-			if ok := stopIDs.Has(stop[0]); ok == true {
-				stops[stop[0]] = m.Stop{
-					StopID:             stop[0],
-					StopCode:           stop[1],
-					StopName:           stopName,
-					StopDesc:           stop[3],
-					StopLat:            stop[4],
-					StopLon:            stop[5],
-					ZoneID:             stop[6],
-					StopURL:            stop[7],
-					LocationType:       stop[8],
-					ParentStation:      stop[9],
-					StopTimezone:       stop[10],
-					WheelchairBoarding: stop[11],
+			if ok := stopIDs.Has(stop[colPos[sID]]); ok == true {
+				stops[stop[colPos[sID]]] = m.Stop{
+					StopID:   stop[colPos[sID]],
+					StopCode: stop[colPos[sCode]],
+					StopName: stopName,
+					StopDesc: stop[colPos[sDesc]],
 				}
 			}
 		}
@@ -253,6 +326,7 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 
 	r := csv.NewReader(f)
 
+	colPos := make(map[string]int)
 	for {
 		if day, err := r.Read(); err != nil {
 			if err == io.EOF {
@@ -261,17 +335,22 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 				panic(fmt.Sprintf("Unable to parse calendar: %s", err))
 			}
 		} else {
+			if len(colPos) == 0 {
+				colPos, err = getColPos(calC, day)
+				continue
+			}
+
 			cal = append(cal, m.Calendar{
-				ServiceID: day[0],
-				Monday:    day[1],
-				Tuesday:   day[2],
-				Wednesday: day[3],
-				Thursday:  day[4],
-				Friday:    day[5],
-				Saturday:  day[6],
-				Sunday:    day[7],
-				StartDate: day[8],
-				EndDate:   day[9],
+				ServiceID: day[colPos[sID]],
+				Monday:    day[colPos["monday"]],
+				Tuesday:   day[colPos["tuesday"]],
+				Wednesday: day[colPos["wednesday"]],
+				Thursday:  day[colPos["thursday"]],
+				Friday:    day[colPos["friday"]],
+				Saturday:  day[colPos["saturday"]],
+				Sunday:    day[colPos["sunday"]],
+				StartDate: day[colPos[sDate]],
+				EndDate:   day[colPos[eDate]],
 			})
 		}
 	}

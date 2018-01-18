@@ -66,8 +66,9 @@ func main() {
 	}()
 
 	if *parse {
+		p := &parser.Parser{DB: al, FileDir: *sourceDir, Logger: logger}
 		logger.Info("Parsing data and inserting into DB.")
-		parser.ParseData(al, *sourceDir)
+		p.ParseData()
 	}
 
 	logger.Info("Init endpoints")
