@@ -47,9 +47,6 @@ class Station extends React.Component {
     }
 
     componentWillReceiveProps(nextProps){
-      if(nextProps.reset){
-          this.setState(this.initState);
-      }
       this.setState({stations:nextProps.stations});
       this.forceUpdate();
     }

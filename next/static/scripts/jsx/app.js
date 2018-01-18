@@ -9,18 +9,13 @@ class App extends React.Component {
         super(props);
         this.initState = {to: "",
           from: "",
-          stations: [],
-          reset: false
+          stations: []
         };
         this.state = this.initState;
     }
 
     startOver(me){
       me.setState(this.initState);
-      //this.setState({reset:true}, () => {
-      //  this.forceUpdate();
-      //  });
-      this.setState({reset:true});
       axios.get('/stations')
       .then(res => {
         var stationSorted = res.data.sort(function(a, b) {
@@ -42,22 +37,13 @@ class App extends React.Component {
         });
 		this.setState({stations:stationSorted});
       });
-      this.setState({reset:false});
     }
 
 	render(){
 	  return (
 		<div>
-		  <div className="header">
-          <div className="reset-btn">
-            <Button onClick= {() => this.startOver(this)}
-              bsSize="xsmall"
-              bsStyle="warning">Start Over
-            </Button>
-          </div>
-          </div>
           <div id="from_stations">
-              <Station stations={this.state.stations} reset={this.state.reset} />
+              <Station stations={this.state.stations} />
           </div>
           <br />
 		</div>
