@@ -8300,6 +8300,8 @@ button.close {
   width: 100%;
   height: 70px;
   margin-bottom: 10px;
+  outline: none;
+  box-shadow: none;
 }
 
 .station-btn-text {
