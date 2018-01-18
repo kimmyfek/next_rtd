@@ -67,7 +67,9 @@ class Station extends React.Component {
         if(me.state.to != "" && me.state.from != ""){
             // we have our to & from  stations,
             // lets call the backend for the times
-            me.getNextTimes(me.state.to, me.state.from);
+            if(me.state.times == ""){
+              me.getNextTimes(me.state.to, me.state.from);
+            }
 
             if(me.state.times != ""){
               return (
@@ -81,40 +83,39 @@ class Station extends React.Component {
             }
         } else {
 
-		var listStations = this.state.stations.map(function(station) {
-			return (
-            <div className="station" key={"station" + station.name}>
-			  <Button
-                key={"btn"+station.name}
-				onClick={ () => {me.getConnectingStations(station)}}>
-                <div key={station.name} className="station-btn-text">
-			      {station.name}
-               </div>
-			  </Button>
-              <br />
+          var listStations = this.state.stations.map(function(station) {
+              return (
+              <div className="station" key={"station" + station.name}>
+                <Button
+                  key={"btn"+station.name}
+                  onClick={ () => {me.getConnectingStations(station)}}>
+                  <div key={station.name} className="station-btn-text">
+                    {station.name}
+                 </div>
+                </Button>
+                <br />
+              </div>
+                );
+            });
+
+          if(me.state.from != ""){
+              var fromDisplay = "from: " + me.state.from;
+          } else {
+              var fromDisplay = "";
+          }
+          return (
+            <div>
+            <div className="header">
+              <h3>{me.state.pageText}</h3>
+              <h5><i>{fromDisplay}</i></h5>
             </div>
-			  );
-		  });
-
-      if(me.state.from != ""){
-          var fromDisplay = "from: " + me.state.from;
-      } else {
-          var fromDisplay = "";
-      }
-      return (
-        <div>
-        <div className="header">
-          <h3>{me.state.pageText}</h3>
-          <h5><i>{fromDisplay}</i></h5>
-        </div>
-        <br />
-        <ButtonGroup vertical block className="stations">
-          {listStations}
-        </ButtonGroup>
-        </div>
-      );
-
-      }
+            <br />
+            <ButtonGroup vertical block className="stations">
+              {listStations}
+            </ButtonGroup>
+            </div>
+          );
+        }
  	}
 }
 
