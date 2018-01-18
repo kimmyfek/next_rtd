@@ -39,7 +39,7 @@ function bundle() {
 gulp.task('concatCss', function () {
   return gulp.src('next/static/css/*.css')
     .pipe(concatCss("bundle.css"))
-    .pipe(gulp.dest('next/static/css/'));
+    .pipe(gulp.dest('next/static/dist/'));
 });
 
 gulp.task('transformMain', function() {
