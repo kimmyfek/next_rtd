@@ -26,21 +26,25 @@
 - [x] Theatre district stop should display as "Theatre District / Convention Center" (J)
 - [x] Build script needs to work (J)
 - [ ] Sometimes times endpoint returns "invalid connection"
+- [X] Footer (K)
+- [X] Show arrival time to the _TO_ station (K)
+- [X] Queries hitting the backend twice (K)
+- [X] Make bundle.css smaller (K)
+- [X] Make app.js smaller (K)
+- SEO: What does this entail?
+  - [ ] Things?
+- [ ] Add content
+- [ ] Resubmit Adsense (J / K)
 - Building
 	- [ ] Build JS from container
  	- [ ] Docker image for apache + go + js
  	- [ ] Script to deploy sql + go to remote
 - [ ] Add some logs to DB rollover scripts (J)
-- [X] Footer (K)
-- [X] Like, FB, Tweet (K)
-- [X] Word light rail (K)
-- [X] Show arrival time to the _TO_ station (K)
+- [ ] Mobile Organization
+- [ ] Desktop organization
+- [ ] Like, FB, Tweet (K)
+- [ ] Word light rail (K)
 - [ ] Contact us / Feedback / About (K / J)
-- [X] Queries hitting the backend twice (K)
-- [X] Make bundle.css smaller (K)
-- [X] Make app.js smaller (K)
-- [ ] Ad? (J / K)
-- [ ] SEO (J / K)
 - [ ] Validate data (J / K)
 - [ ] HTTP Server like Apache (J / K)
 - [ ] Rename everything to rtdgo.co (J / K)
