@@ -27,13 +27,13 @@
 - [x] Build script needs to work (J)
 - [ ] Sometimes times endpoint returns "invalid connection"
 - Building
- - [ ] Build JS from container
- - [ ] Docker image for apache + go + js
- - [ ] Script to deploy sql + go to remote
+	- [ ] Build JS from container
+ 	- [ ] Docker image for apache + go + js
+ 	- [ ] Script to deploy sql + go to remote
 - [ ] Add some logs to DB rollover scripts (J)
 - [X] Footer (K)
-- [ ] Like, FB, Tweet (K)
-- [ ] Word light rail (K)
+- [X] Like, FB, Tweet (K)
+- [X] Word light rail (K)
 - [X] Show arrival time to the _TO_ station (K)
 - [ ] Contact us / Feedback / About (K / J)
 - [X] Queries hitting the backend twice (K)
