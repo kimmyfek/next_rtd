@@ -25,16 +25,15 @@
 - [x] Graceful shutdown (J)
 - [x] Theatre district stop should display as "Theatre District / Convention Center" (J)
 - [x] Build script needs to work (J)
-- [ ] Sometimes times endpoint returns "invalid connection"
 - [X] Footer (K)
 - [X] Show arrival time to the _TO_ station (K)
 - [X] Queries hitting the backend twice (K)
 - [X] Make bundle.css smaller (K)
 - [X] Make app.js smaller (K)
-- SEO: What does this entail?
-  - [ ] Things?
+- [X] SEO (K)
 - [ ] Add content
 - [ ] Resubmit Adsense (J / K)
+- [ ] Sometimes times endpoint returns "invalid connection"
 - Building
 	- [ ] Build JS from container
  	- [ ] Docker image for apache + go + js
