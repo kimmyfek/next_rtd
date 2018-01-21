@@ -68,6 +68,11 @@ func (al *AccessLayer) Open() error {
 	if err != nil {
 		return err
 	}
+	db.SetConnMaxLifetime(5 * time.Minute)
+	if err := db.Ping(); err != nil {
+		return err
+	}
+
 	al.AL = db
 
 	err = al.CreateTables(false)
