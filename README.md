@@ -25,6 +25,7 @@
 - [x] Graceful shutdown (J)
 - [x] Theatre district stop should display as "Theatre District / Convention Center" (J)
 - [x] Build script needs to work (J)
+- [ ] Sometimes times endpoint returns "invalid connection"
 - Building
  - [ ] Build JS from container
  - [ ] Docker image for apache + go + js
