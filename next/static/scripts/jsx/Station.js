@@ -103,7 +103,7 @@ class Station extends React.Component {
           return (
             <div>
             <div className="header">
-              <h3>{me.state.pageText}</h3>
+              <h4>{me.state.pageText}</h4>
               <h5><i>{fromDisplay}</i></h5>
             </div>
             <br />

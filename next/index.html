@@ -16,6 +16,23 @@
   </head>
 
   <body>
+	<nav class="navbar sticky-top navbar-light bg-faded" style="background-color: white;">
+	  <a class="navbar-brand" href="index.html"><b>rtdGO</b></a>
+	  <a class="navbar-brand" href="about.html">About</a>
+	  <a class="navbar-brand" href="mailto:rtdgodenver@gmail.com?Subject=RTDGo" target="_top">Contact Us</a>
+	</nav>
+
+	<div style="margin-top:-25px" class="container">
+	  <div class="jumbotron">
+		<h3>This is rtdGO</h3>
+		<p>A minimalist Denver RTD Light Rail schedule</p>
+	  </div>
+	  <div>
+		<div id="main"></div>
+	  </div>
+	</div>
+
+	<script type="text/javascript" src="static/scripts/js/app.js"></script>
 	<div id="fb-root"></div>
 	<script>(function(d, s, id) {
 	  var js, fjs = d.getElementsByTagName(s)[0];
@@ -24,18 +41,6 @@
 	  js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.11&appId=429284017129708&autoLogAppEvents=1';
 	  fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));</script>
-
-	<nav class="navbar sticky-top navbar-light bg-faded" style="background-color: #e3f2fd;">
-	  <a class="navbar-brand" href="index.html"><b>rtdGO</b></a>
-	  <a class="navbar-brand" href="about.html">About</a>
-	  <a class="navbar-brand" href="mailto:rtdgodenver@gmail.com?Subject=RTDGo" target="_top">Contact Us</a>
-	</nav>
-
-    <div style="margin-top:-25px;" class="container">
-      <div id="main"></div>
-	</div>
-
-	<script type="text/javascript" src="static/scripts/js/app.js"></script>
 	<div style="text-align:center;">
 	  <!-- Your like button code -->
 	  <div class="fb-like"
