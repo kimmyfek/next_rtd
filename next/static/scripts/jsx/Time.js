@@ -72,6 +72,14 @@ class Time extends React.Component {
                 <hr />
                 <br />
                 <ListGroup className="time-list">
+                  <ListGroupItem bsStyle="warning">
+                  <div>
+                  {"* This schedule does NOT take into account holidays"}
+                  <br />
+                  {"** Trains may arrive up to two minutes early"}
+                  </div>
+                  </ListGroupItem>
+                  <br/>
                   {listTimes}
                 </ListGroup>
                 </div>
