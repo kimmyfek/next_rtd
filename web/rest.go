@@ -162,7 +162,7 @@ func (rh *RESTHandler) GetTimes(w http.ResponseWriter, r *http.Request) {
 	// TODO FromTime
 	// TODO No from station
 	// TODO Days
-	l, _ := time.LoadLocation("MST")
+	l, _ := time.LoadLocation("America/Denver")
 	now := formatTime(time.Now().In(l))
 	times, err := rh.DB.GetTimesForStations(from, to, now, numTimes)
 	if err != nil {
