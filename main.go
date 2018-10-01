@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"net/http"
@@ -24,7 +23,7 @@ var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt 
 
 // MySQL Flags
 //var sqlPort = flag.String("sqlPort", "", "The for SQL Connstring)
-var sqlPass = flag.Bool("sqlPass", false, "Password flag SQL Connstring")
+var sqlPass = flag.String("sqlPass", "", "Password flag SQL Connstring")
 var sqlUser = flag.String("sqlUser", "root", "The user for SQL Connstring")
 var sqlHost = flag.String("sqlHost", "localhost", "The hostname for SQL Connstring")
 var sqlDB = flag.String("sqlDB", "rtd", "The DB Name for SQL Connstring")
@@ -44,16 +43,20 @@ func main() {
 	logger.Info("Application Initialization Begin...")
 	logger.Debug("Debug mode enabled")
 
-	var sqlPassword string
-	if *sqlPass {
-		r := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter SQL Password: ")
-		sqlPassword, err = r.ReadString('\n')
-		if err != nil {
-			logger.Fatalf("Unable to read password from stdin: %s", err)
-		}
-	}
-	al := database.NewAccessLayer(logger, *sqlUser, sqlPassword, *sqlHost, *sqlDB)
+	//var sqlPassword string
+	//if *sqlPass {
+	//	r := bufio.NewReader(os.Stdin)
+	//	fmt.Print("Enter SQL Password: ")
+	//	sqlPassword, err = r.ReadString('\n')
+	//	if err != nil {
+	//		logger.Fatalf("Unable to read password from stdin: %s", err)
+	//	}
+	//}
+	logger.WithFields(log.Fields{
+		"dbHost": *sqlHost,
+		"dbUser": *sqlUser,
+	}).Info("Attempting to connect to DB")
+	al := database.NewAccessLayer(logger, *sqlUser, *sqlPass, *sqlHost, *sqlDB)
 	if err = al.Open(); err != nil {
 		panic(fmt.Sprintf("Unable to create and open database: %s", err))
 	}

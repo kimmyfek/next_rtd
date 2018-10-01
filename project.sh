@@ -47,6 +47,7 @@ function rundb() {
 	docker run --rm -it --name nxt-mysql \
 		-e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
 		-e MYSQL_DATABASE=rtd \
+        -v /var/lib/mysql:/var/lib/mysql \
 		-p 3306:3306 \
 		mysql:5.7
 }
