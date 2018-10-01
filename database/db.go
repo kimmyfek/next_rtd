@@ -63,6 +63,11 @@ func (al *AccessLayer) Open() error {
 		DBName: al.db,
 		Addr:   al.host,
 	}
+	if al.host != "" {
+		c.Net = "tcp"
+	}
+	c.Params = map[string]string{"allowNativePasswords": "true"}
+	fmt.Println(c.FormatDSN())
 	db, err := sql.Open("mysql", c.FormatDSN())
 	//db, err := sql.Open("mysql", "root@/rtd")
 	if err != nil {
@@ -470,7 +475,7 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 		return nil, err
 	}
 
-	connSet := make(map[string]*set.Set)
+	connSet := make(map[string]set.Interface)
 	defer rows.Close()
 	for rows.Next() {
 		var stop, connection string
@@ -481,7 +486,10 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 		if conns, ok := connSet[stop]; ok {
 			conns.Add(connection)
 		} else {
-			connSet[stop] = set.New(connection)
+			s := set.New(set.ThreadSafe)
+			s.Add(connection)
+			connSet[stop] = s
+
 		}
 	}
 

@@ -219,7 +219,7 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 	return trips
 }
 
-func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string][]m.StopTime, *set.Set) {
+func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string][]m.StopTime, set.Interface) {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -228,7 +228,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 	defer f.Close()
 
 	stopTimes := make(map[string][]m.StopTime)
-	stopIDs := set.New()
+	stopIDs := set.New(set.ThreadSafe)
 	r := csv.NewReader(f)
 
 	colPos := make(map[string]int)
@@ -259,7 +259,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 	return stopTimes, stopIDs
 }
 
-func parseStops(stopIDs *set.Set, path, filename string) map[string]m.Stop {
+func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
