@@ -9,7 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kimmyfek/next_rtd/database"
+	"github.com/kimmyfek/next_rtd/database/sql"
 	"github.com/kimmyfek/next_rtd/parser"
 	"github.com/kimmyfek/next_rtd/web"
 )
@@ -55,7 +55,7 @@ func main() {
 		"dbHost": *sqlHost,
 		"dbUser": *sqlUser,
 	}).Info("Attempting to connect to DB")
-	al := database.NewAccessLayer(logger, *sqlUser, *sqlPass, *sqlHost, *sqlDB)
+	al := sql.NewAccessLayer(logger, *sqlUser, *sqlPass, *sqlHost, *sqlDB)
 	if err = al.Open(); err != nil {
 		panic(fmt.Sprintf("Unable to create and open database: %s", err))
 	}
