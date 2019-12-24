@@ -317,6 +317,10 @@ func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop 
 }
 
 func parseCalendar(path, filename string) (cal []m.Calendar) {
+    const (
+        layoutISO = "20060102 15:04"
+    )
+
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -340,6 +344,13 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 				continue
 			}
 
+            // Load MST timezone and make sure datetime is 4 AM
+            loc, _ := time.LoadLocation("America/Denver")
+            startDate, _ := time.ParseInLocation(layoutISO, day[colPos[sDate]]+" 4:00", loc)
+            startUnix := startDate.Unix()
+            endDate, _ := time.ParseInLocation(layoutISO, day[colPos[eDate]]+" 4:00", loc)
+            endUnix := endDate.Unix()
+
 			cal = append(cal, m.Calendar{
 				ServiceID: day[colPos[sID]],
 				Monday:    day[colPos["monday"]],
@@ -349,8 +360,8 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 				Friday:    day[colPos["friday"]],
 				Saturday:  day[colPos["saturday"]],
 				Sunday:    day[colPos["sunday"]],
-				StartDate: day[colPos[sDate]],
-				EndDate:   day[colPos[eDate]],
+				StartDate: startUnix,
+				EndDate:   endUnix,
 			})
 		}
 	}
