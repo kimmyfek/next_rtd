@@ -1,16 +1,16 @@
 package parser
 
 import (
+	"archive/zip"
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
-    "time"
-    "archive/zip"
-    "path/filepath"
-    "net/http"
-    "strconv"
+	"time"
 
 	m "github.com/kimmyfek/next_rtd/models"
 	log "github.com/sirupsen/logrus"
@@ -46,11 +46,11 @@ var calC = []string{servID, "monday", "tuesday", "wednesday", "thursday", "frida
 
 type db interface {
 	CreateTables(bool) error
-	SaveRoutes(bool, map[string]m.Route) error
-	SaveTrips(bool, map[string]m.Trip) error
-	SaveStops(bool, map[string]m.Stop) error
-	SaveStopTimes(bool, map[string][]m.StopTime) error
-	SaveCalendar(bool, []m.Calendar) error
+	SaveRoutes(bool, map[string]*m.Route) error
+	SaveTrips(bool, map[string]*m.Trip) error
+	SaveStops(bool, map[string]*m.Stop) error
+	SaveStopTimes(bool, map[string][]*m.StopTime) error
+	SaveCalendar(bool, []*m.Calendar) error
 	SwapTables() error
 	DeleteBackupTables() error
 	CreateIndices(bool) error
@@ -58,24 +58,24 @@ type db interface {
 
 // Parser type allows parsing of a filedir
 type Parser struct {
-	DB      db
-	Logger  *log.Entry
+	DB     db
+	Logger *log.Entry
 }
 
 const (
-    scheduleDir = "schedule"
-    scheduleFile = "schedule/google_transit.zip"
-    scheduleUrl = "http://www.rtd-denver.com/GoogleFeeder/google_transit.zip"
+	scheduleDir  = "schedule"
+	scheduleFile = "schedule/google_transit.zip"
+	scheduleUrl  = "http://www.rtd-denver.com/GoogleFeeder/google_transit.zip"
 )
 
 // ParseData parses the data files and saves them to the data store.
 func (p *Parser) ParseData() {
-    // download google transit zip
-    downloadSchedule(scheduleUrl, scheduleFile)
-    // unzip
-    unzipSchedule(scheduleFile, scheduleDir)
+	// download google transit zip
+	downloadSchedule(scheduleUrl, scheduleFile)
+	// unzip
+	unzipSchedule(scheduleFile, scheduleDir)
 
-    // Parse files
+	// Parse files
 	p.Logger.Info("Parsing Routes File")
 	routes := parseRoutes(scheduleDir, "routes")
 	p.Logger.Info("Parsing Trips File")
@@ -150,7 +150,7 @@ func getColPos(cols []string, r []string) (map[string]int, error) {
 
 }
 
-func parseRoutes(path, filename string) map[string]m.Route {
+func parseRoutes(path, filename string) map[string]*m.Route {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -158,7 +158,7 @@ func parseRoutes(path, filename string) map[string]m.Route {
 	}
 	defer f.Close()
 
-	routes := make(map[string]m.Route)
+	routes := make(map[string]*m.Route)
 	typeIdx := 1000
 	r := csv.NewReader(f)
 
@@ -185,7 +185,7 @@ func parseRoutes(path, filename string) map[string]m.Route {
 			}
 
 			if route[typeIdx] == "2" || route[typeIdx] == "0" {
-				routes[route[colPos[rID]]] = m.Route{
+				routes[route[colPos[rID]]] = &m.Route{
 					RouteID:        route[colPos[rID]],
 					RouteShortName: route[colPos[rShort]],
 					RouteLongName:  route[colPos[rLong]],
@@ -198,7 +198,7 @@ func parseRoutes(path, filename string) map[string]m.Route {
 	return routes
 }
 
-func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.Trip {
+func parseTrips(routes map[string]*m.Route, path, filename string) map[string]*m.Trip {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -206,7 +206,7 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 	}
 	defer f.Close()
 
-	trips := make(map[string]m.Trip)
+	trips := make(map[string]*m.Trip)
 	r := csv.NewReader(f)
 
 	colPos := make(map[string]int)
@@ -223,7 +223,7 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 				continue
 			}
 			if _, ok := routes[trip[colPos[rID]]]; ok == true {
-				trips[trip[colPos[tID]]] = m.Trip{
+				trips[trip[colPos[tID]]] = &m.Trip{
 					RouteID:     trip[colPos[rID]],
 					ServiceID:   trip[colPos[servID]],
 					TripID:      trip[colPos[tID]],
@@ -235,7 +235,7 @@ func parseTrips(routes map[string]m.Route, path, filename string) map[string]m.T
 	return trips
 }
 
-func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string][]m.StopTime, set.Interface) {
+func parseStopTimes(trips map[string]*m.Trip, path, filename string) (map[string][]*m.StopTime, set.Interface) {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -243,7 +243,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 	}
 	defer f.Close()
 
-	stopTimes := make(map[string][]m.StopTime)
+	stopTimes := make(map[string][]*m.StopTime)
 	stopIDs := set.New(set.ThreadSafe)
 	r := csv.NewReader(f)
 
@@ -262,7 +262,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 			}
 
 			if _, ok := trips[stopTime[colPos[tID]]]; ok == true {
-				stopTimes[stopTime[colPos[tID]]] = append(stopTimes[stopTime[colPos[tID]]], m.StopTime{
+				stopTimes[stopTime[colPos[tID]]] = append(stopTimes[stopTime[colPos[tID]]], &m.StopTime{
 					TripID:        stopTime[colPos[tID]],
 					ArrivalTime:   stopTime[colPos[aTime]],
 					DepartureTime: stopTime[colPos[dTime]],
@@ -275,7 +275,7 @@ func parseStopTimes(trips map[string]m.Trip, path, filename string) (map[string]
 	return stopTimes, stopIDs
 }
 
-func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop {
+func parseStops(stopIDs set.Interface, path, filename string) map[string]*m.Stop {
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -283,7 +283,7 @@ func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop 
 	}
 	defer f.Close()
 
-	stops := make(map[string]m.Stop)
+	stops := make(map[string]*m.Stop)
 	r := csv.NewReader(f)
 
 	shortNames := map[string]string{
@@ -319,8 +319,9 @@ func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop 
 					break
 				}
 			}
+
 			if ok := stopIDs.Has(stop[colPos[sID]]); ok == true {
-				stops[stop[colPos[sID]]] = m.Stop{
+				stops[stop[colPos[sID]]] = &m.Stop{
 					StopID:   stop[colPos[sID]],
 					StopCode: stop[colPos[sCode]],
 					StopName: stopName,
@@ -332,10 +333,10 @@ func parseStops(stopIDs set.Interface, path, filename string) map[string]m.Stop 
 	return stops
 }
 
-func parseCalendar(path, filename string) (cal []m.Calendar) {
-    const (
-        layoutISO = "20060102 15:04"
-    )
+func parseCalendar(path, filename string) (cal []*m.Calendar) {
+	const (
+		layoutISO = "20060102 15:04"
+	)
 
 	filePath := fmt.Sprintf("%s/%s.txt", path, filename)
 	f, err := os.Open(filePath)
@@ -360,15 +361,15 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 				continue
 			}
 
-            // Load MST timezone and make sure datetime is 4 AM
-            loc, _ := time.LoadLocation("America/Denver")
-            startDate, _ := time.ParseInLocation(layoutISO, day[colPos[sDate]]+" 4:00", loc)
-            startUnix := startDate.Unix()
-            endDate, _ := time.ParseInLocation(layoutISO, day[colPos[eDate]]+" 4:00", loc)
-            // add 24 hours for end date
-            endUnix := endDate.Unix() + 86400
+			// Load MST timezone and make sure datetime is 4 AM
+			loc, _ := time.LoadLocation("America/Denver")
+			startDate, _ := time.ParseInLocation(layoutISO, day[colPos[sDate]]+" 4:00", loc)
+			startUnix := startDate.Unix()
+			endDate, _ := time.ParseInLocation(layoutISO, day[colPos[eDate]]+" 4:00", loc)
+			// add 24 hours for end date
+			endUnix := endDate.Unix() + 86400
 
-			cal = append(cal, m.Calendar{
+			cal = append(cal, &m.Calendar{
 				ServiceID: day[colPos[sID]],
 				Monday:    day[colPos["monday"]],
 				Tuesday:   day[colPos["tuesday"]],
@@ -385,80 +386,78 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 	return cal
 }
 
-
 func downloadSchedule(url string, fileName string) error {
-    // Get the data
-    resp, err := http.Get(url)
-    if err != nil {
-        return err
-    }
-    defer resp.Body.Close()
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 
-    // Create the file
-    out, err := os.Create(fileName)
-    if err != nil {
-        return err
-    }
-    defer out.Close()
+	// Create the file
+	out, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
 
-    // Write the body to file
-    _, err = io.Copy(out, resp.Body)
-    return err
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
-
 func unzipSchedule(src string, dest string) error {
-    var filenames []string
-    r, err := zip.OpenReader(src)
+	var filenames []string
+	r, err := zip.OpenReader(src)
 
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    defer r.Close()
+	defer r.Close()
 
-    for _, f := range r.File {
+	for _, f := range r.File {
 
-        // Store filename/path for returning and using later on
-        fpath := filepath.Join(dest, f.Name)
+		// Store filename/path for returning and using later on
+		fpath := filepath.Join(dest, f.Name)
 
-        if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-            return fmt.Errorf("%s: illegal file path", fpath)
-        }
+		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("%s: illegal file path", fpath)
+		}
 
-        filenames = append(filenames, fpath)
+		filenames = append(filenames, fpath)
 
-        if f.FileInfo().IsDir() {
-            // Make Folder
-            os.MkdirAll(fpath, os.ModePerm)
-            continue
-        }
+		if f.FileInfo().IsDir() {
+			// Make Folder
+			os.MkdirAll(fpath, os.ModePerm)
+			continue
+		}
 
-        // Make File
-        if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-            return err
-        }
+		// Make File
+		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return err
+		}
 
-        outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-        if err != nil {
-            return err
-        }
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
 
-        rc, err := f.Open()
-        if err != nil {
-            return err
-        }
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
 
-        _, err = io.Copy(outFile, rc)
+		_, err = io.Copy(outFile, rc)
 
-        // Close the file without defer to close before next iteration of loop
-        outFile.Close()
-        rc.Close()
+		// Close the file without defer to close before next iteration of loop
+		outFile.Close()
+		rc.Close()
 
-        if err != nil {
-            return err
-        }
-    }
-    return nil
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 
 }

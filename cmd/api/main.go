@@ -51,6 +51,7 @@ func main() {
 	//		logger.Fatalf("Unable to read password from stdin: %s", err)
 	//	}
 	//}
+
 	logger.WithFields(log.Fields{
 		"dbHost": *sqlHost,
 		"dbUser": *sqlUser,

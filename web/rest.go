@@ -17,14 +17,14 @@ import (
 )
 
 type db interface {
-	GetStationsAndConnections() ([]models.Station, error)
-	GetTimesForStations(from, to, now string, numTimes int) ([]models.Time, error)
+	GetStationsAndConnections() ([]*models.Station, error)
+	GetTimesForStations(from, to, now string, numTimes int) ([]*models.Time, error)
 }
 
 // RESTHandler allows dependency injection for REST calls
 type RESTHandler struct {
 	DB       db
-	stations []models.Station
+	stations []*models.Station
 	Logger   *log.Entry
 }
 

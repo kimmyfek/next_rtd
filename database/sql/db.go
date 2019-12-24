@@ -195,7 +195,7 @@ func (al *AccessLayer) GetStations() []string {
 }
 
 // SaveRoutes stores Route m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveRoutes(temp bool, data map[string]m.Route) error {
+func (al *AccessLayer) SaveRoutes(temp bool, data map[string]*m.Route) error {
 	table := getTableName(routesTable, temp)
 	if len(data) == 0 {
 		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
@@ -226,7 +226,7 @@ func (al *AccessLayer) SaveRoutes(temp bool, data map[string]m.Route) error {
 }
 
 // SaveTrips stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveTrips(temp bool, data map[string]m.Trip) error {
+func (al *AccessLayer) SaveTrips(temp bool, data map[string]*m.Trip) error {
 	table := getTableName(tripsTable, temp)
 	if len(data) == 0 {
 		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
@@ -258,7 +258,7 @@ func (al *AccessLayer) SaveTrips(temp bool, data map[string]m.Trip) error {
 }
 
 // SaveStops stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveStops(temp bool, data map[string]m.Stop) error {
+func (al *AccessLayer) SaveStops(temp bool, data map[string]*m.Stop) error {
 	table := getTableName(stopsTable, temp)
 	if len(data) == 0 {
 		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
@@ -298,7 +298,7 @@ func (al *AccessLayer) SaveStops(temp bool, data map[string]m.Stop) error {
 }
 
 // SaveStopTimes stores Trip m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveStopTimes(temp bool, data map[string][]m.StopTime) error {
+func (al *AccessLayer) SaveStopTimes(temp bool, data map[string][]*m.StopTime) error {
 	table := getTableName(stopTimesTable, temp)
 	if len(data) == 0 {
 		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
@@ -342,7 +342,7 @@ func (al *AccessLayer) SaveStopTimes(temp bool, data map[string][]m.StopTime) er
 }
 
 // SaveCalendar stores Calendar m to the DB for each entry in the provided list
-func (al *AccessLayer) SaveCalendar(temp bool, data []m.Calendar) error {
+func (al *AccessLayer) SaveCalendar(temp bool, data []*m.Calendar) error {
 	table := getTableName(calendarTable, temp)
 	if len(data) == 0 {
 		return fmt.Errorf("Unable to save data to %s, empty list provided", table)
@@ -438,7 +438,7 @@ func (al *AccessLayer) exec(query string, values []string) (int64, error) {
 }
 
 // GetStationsAndConnections returns all stations along with their connections
-func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
+func (al *AccessLayer) GetStationsAndConnections() ([]*m.Station, error) {
 	query := `
 		SELECT DISTINCT
 			s.stop_name, s2.stop_name
@@ -492,14 +492,14 @@ func (al *AccessLayer) GetStationsAndConnections() ([]m.Station, error) {
 		}
 	}
 
-	connections := []m.Station{}
+	connections := []*m.Station{}
 	for stop, conns := range connSet {
-		connList := []m.Station{}
+		connList := []*m.Station{}
 		conns.Each(func(item interface{}) bool {
-			connList = append(connList, m.Station{Name: item.(string)})
+			connList = append(connList, &m.Station{Name: item.(string)})
 			return true
 		})
-		connections = append(connections, m.Station{
+		connections = append(connections, &m.Station{
 			Name:        stop,
 			Connections: connList,
 		})
@@ -609,8 +609,8 @@ func (r *rtdTime) hourDelta(delta int) {
 // The database is queried for 'RTD Time' (if < 5am, add 24 and day == yesterday)
 // if fewer than numTimes results are found, a second query is executed to
 // get the remaining times
-func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]m.Time, error) {
-	var times []m.Time
+func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) ([]*m.Time, error) {
+	var times []*m.Time
 	t := newRTDTime(now)
 	// NOTE: Day might be something that's passed in
 	day := al.getServiceIDFromDay(0)
@@ -636,13 +636,13 @@ func (al *AccessLayer) GetTimesForStations(from, to, now string, numTimes int) (
 	return times, nil
 }
 
-func parseStationTimeRows(rows *sql.Rows) []m.Time {
-	var times []m.Time
+func parseStationTimeRows(rows *sql.Rows) []*m.Time {
+	var times []*m.Time
 	defer rows.Close()
 	for rows.Next() {
 		var to, from, arrivalTime, departureTime, route string
 		rows.Scan(&from, &to, &departureTime, &arrivalTime, &route)
-		times = append(times, m.Time{
+		times = append(times, &m.Time{
 			From:          from,
 			To:            to,
 			DepartureTime: departureTime,

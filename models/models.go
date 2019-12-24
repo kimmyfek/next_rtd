@@ -54,8 +54,8 @@ type Stop struct {
 
 // Station provides the representation of a train station
 type Station struct {
-	Name        string    `json:"name"`
-	Connections []Station `json:"connections,omitempty"`
+	Name        string     `json:"name"`
+	Connections []*Station `json:"connections,omitempty"`
 }
 
 // Time how a Time payload is represented

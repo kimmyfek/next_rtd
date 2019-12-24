@@ -6,3 +6,5 @@ nxt*
 runboard/*
 package-lock.json
 kim-test/
+zip/
+cmd/lambda/getstations/getstations
