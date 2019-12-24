@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kimmyfek/next_rtd/models"
@@ -91,7 +91,7 @@ func (m metricsWriter) getCode() int {
 func (rh *RESTHandler) loggedHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s := time.Now()
-		uid, _ := uuid.NewV4()
+		uid := uuid.NewV4()
 		logger := rh.Logger.WithFields(log.Fields{
 			"context": uid,
 			"URI":     r.RequestURI,
