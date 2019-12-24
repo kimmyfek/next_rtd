@@ -6,6 +6,11 @@ import (
 	"io"
 	"os"
 	"strings"
+    "time"
+    "archive/zip"
+    "path/filepath"
+    "net/http"
+    "strconv"
 
 	m "github.com/kimmyfek/next_rtd/models"
 	log "github.com/sirupsen/logrus"
@@ -54,22 +59,33 @@ type db interface {
 // Parser type allows parsing of a filedir
 type Parser struct {
 	DB      db
-	FileDir string
 	Logger  *log.Entry
 }
 
+const (
+    scheduleDir = "schedule"
+    scheduleFile = "schedule/google_transit.zip"
+    scheduleUrl = "http://www.rtd-denver.com/GoogleFeeder/google_transit.zip"
+)
+
 // ParseData parses the data files and saves them to the data store.
 func (p *Parser) ParseData() {
+    // download google transit zip
+    downloadSchedule(scheduleUrl, scheduleFile)
+    // unzip
+    unzipSchedule(scheduleFile, scheduleDir)
+
+    // Parse files
 	p.Logger.Info("Parsing Routes File")
-	routes := parseRoutes(p.FileDir, "routes")
+	routes := parseRoutes(scheduleDir, "routes")
 	p.Logger.Info("Parsing Trips File")
-	trips := parseTrips(routes, p.FileDir, "trips")
+	trips := parseTrips(routes, scheduleDir, "trips")
 	p.Logger.Info("Parsing StopTimes File")
-	stopTimes, stopIDs := parseStopTimes(trips, p.FileDir, "stop_times")
+	stopTimes, stopIDs := parseStopTimes(trips, scheduleDir, "stop_times")
 	p.Logger.Info("Parsing Stops File")
-	stops := parseStops(stopIDs, p.FileDir, "stops")
+	stops := parseStops(stopIDs, scheduleDir, "stops")
 	p.Logger.Info("Parsing Calendar File")
-	calData := parseCalendar(p.FileDir, "calendar")
+	calData := parseCalendar(scheduleDir, "calendar")
 
 	p.Logger.Info("Creating Temp Tables")
 	if err := p.DB.CreateTables(true); err != nil {
@@ -349,7 +365,8 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
             startDate, _ := time.ParseInLocation(layoutISO, day[colPos[sDate]]+" 4:00", loc)
             startUnix := startDate.Unix()
             endDate, _ := time.ParseInLocation(layoutISO, day[colPos[eDate]]+" 4:00", loc)
-            endUnix := endDate.Unix()
+            // add 24 hours for end date
+            endUnix := endDate.Unix() + 86400
 
 			cal = append(cal, m.Calendar{
 				ServiceID: day[colPos[sID]],
@@ -360,10 +377,88 @@ func parseCalendar(path, filename string) (cal []m.Calendar) {
 				Friday:    day[colPos["friday"]],
 				Saturday:  day[colPos["saturday"]],
 				Sunday:    day[colPos["sunday"]],
-				StartDate: startUnix,
-				EndDate:   endUnix,
+				StartDate: strconv.FormatInt(startUnix, 10),
+				EndDate:   strconv.FormatInt(endUnix, 10),
 			})
 		}
 	}
 	return cal
+}
+
+
+func downloadSchedule(url string, fileName string) error {
+    // Get the data
+    resp, err := http.Get(url)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    // Create the file
+    out, err := os.Create(fileName)
+    if err != nil {
+        return err
+    }
+    defer out.Close()
+
+    // Write the body to file
+    _, err = io.Copy(out, resp.Body)
+    return err
+}
+
+
+func unzipSchedule(src string, dest string) error {
+    var filenames []string
+    r, err := zip.OpenReader(src)
+
+    if err != nil {
+        return err
+    }
+
+    defer r.Close()
+
+    for _, f := range r.File {
+
+        // Store filename/path for returning and using later on
+        fpath := filepath.Join(dest, f.Name)
+
+        if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
+            return fmt.Errorf("%s: illegal file path", fpath)
+        }
+
+        filenames = append(filenames, fpath)
+
+        if f.FileInfo().IsDir() {
+            // Make Folder
+            os.MkdirAll(fpath, os.ModePerm)
+            continue
+        }
+
+        // Make File
+        if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+            return err
+        }
+
+        outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+        if err != nil {
+            return err
+        }
+
+        rc, err := f.Open()
+        if err != nil {
+            return err
+        }
+
+        _, err = io.Copy(outFile, rc)
+
+        // Close the file without defer to close before next iteration of loop
+        outFile.Close()
+        rc.Close()
+
+        if err != nil {
+            return err
+        }
+    }
+    return nil
+
 }

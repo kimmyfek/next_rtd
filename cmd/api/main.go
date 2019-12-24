@@ -19,7 +19,6 @@ var port = flag.Int("port", 3000, "Port to host service on")
 
 // Data Parsing Flags
 var parse = flag.Bool("parse", false, "If provided will parse data and add to DB. Default: Disabled")
-var sourceDir = flag.String("sourceDir", "/runboard", "Dir where source RTD txt files are located. NOT NEEDED IF PARSE=false")
 
 // MySQL Flags
 //var sqlPort = flag.String("sqlPort", "", "The for SQL Connstring)
@@ -69,7 +68,7 @@ func main() {
 	}()
 
 	if *parse {
-		p := &parser.Parser{DB: al, FileDir: *sourceDir, Logger: logger}
+		p := &parser.Parser{DB: al, Logger: logger}
 		logger.Info("Parsing data and inserting into DB.")
 		p.ParseData()
 	}
