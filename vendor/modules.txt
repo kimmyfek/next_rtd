@@ -1,3 +1,8 @@
+# github.com/aws/aws-lambda-go v1.13.3
+github.com/aws/aws-lambda-go/lambda
+github.com/aws/aws-lambda-go/lambda/handlertrace
+github.com/aws/aws-lambda-go/lambda/messages
+github.com/aws/aws-lambda-go/lambdacontext
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2

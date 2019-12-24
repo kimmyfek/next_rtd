@@ -6,6 +6,7 @@ require (
 	9fans.net/go v0.0.2 // indirect
 	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
+	github.com/aws/aws-lambda-go v1.13.3
 	github.com/bombsimon/wsl v1.2.8 // indirect
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/davidrjenni/reftools v0.0.0-20191220212348-ac9b0eba77d1 // indirect
