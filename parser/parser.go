@@ -65,13 +65,13 @@ type Parser struct {
 const (
 	scheduleDir  = "schedule"
 	scheduleFile = "schedule/google_transit.zip"
-	scheduleUrl  = "http://www.rtd-denver.com/GoogleFeeder/google_transit.zip"
+	scheduleURL  = "http://www.rtd-denver.com/GoogleFeeder/google_transit.zip"
 )
 
 // ParseData parses the data files and saves them to the data store.
 func (p *Parser) ParseData() {
 	// download google transit zip
-	downloadSchedule(scheduleUrl, scheduleFile)
+	downloadSchedule(scheduleURL, scheduleFile)
 	// unzip
 	unzipSchedule(scheduleFile, scheduleDir)
 

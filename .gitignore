@@ -1,10 +1,15 @@
-node_modules/*
+# Extensions
+*.txt
+*.zip
+
+# Binaries
+api
 parser/parser
-.DS_Store
+cmd/lambda/getstations/getstations
 next_rtd
-nxt*
-runboard/*
+
+# Everything else
+node_modules/*
+.DS_Store
 package-lock.json
 kim-test/
-zip/
-cmd/lambda/getstations/getstations
