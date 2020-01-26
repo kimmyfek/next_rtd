@@ -70,10 +70,12 @@ const (
 
 // ParseData parses the data files and saves them to the data store.
 func (p *Parser) ParseData() {
-	// download google transit zip
-	downloadSchedule(scheduleURL, scheduleFile)
-	// unzip
-	unzipSchedule(scheduleFile, scheduleDir)
+	if _, err := os.Stat(scheduleFile); os.IsNotExist(err) {
+		// download google transit zip
+		downloadSchedule(scheduleURL, scheduleFile)
+		// unzip
+		unzipSchedule(scheduleFile, scheduleDir)
+	}
 
 	// Parse files
 	p.Logger.Info("Parsing Routes File")

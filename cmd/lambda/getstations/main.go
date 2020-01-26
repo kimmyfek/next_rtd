@@ -8,13 +8,15 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 var al *dynamo.AccessLayer
 
 func init() {
 	var err error
-	al, err = dynamo.New()
+	cfg := aws.NewConfig().WithRegion("us-west2")
+	al, err = dynamo.New(dynamo.TableName, cfg)
 	if err != nil {
 		// TODO return err
 	}

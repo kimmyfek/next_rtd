@@ -54,9 +54,22 @@ type Stop struct {
 
 // Station provides the representation of a train station
 type Station struct {
-	Name        string     `json:"name"`
-	Connections []*Station `json:"connections,omitempty"`
+	Name        string      `json:"name"`
+	Connections Connections `json:"connections,omitempty"`
 }
+
+// Connections represents a list of stations
+type Connections []*Station
+
+// Len is the number of elements
+func (c Connections) Len() int { return len(c) }
+
+// Less reports whether the element with index i should sort before index j
+func (c Connections) Less(i, j int) bool {
+	return c[i].Name < c[j].Name
+}
+
+func (c Connections) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 
 // Time how a Time payload is represented
 type Time struct {

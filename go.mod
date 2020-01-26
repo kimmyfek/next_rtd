@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/aws/aws-lambda-go v1.13.3
+	github.com/aws/aws-sdk-go v1.26.8
 	github.com/bombsimon/wsl v1.2.8 // indirect
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/davidrjenni/reftools v0.0.0-20191220212348-ac9b0eba77d1 // indirect
@@ -36,6 +37,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/securego/gosec v0.0.0-20191219224501-5d613739e150 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
